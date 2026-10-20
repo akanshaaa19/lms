@@ -29,6 +29,22 @@ export function Loading({ variant = 'page', label = 'Loading…' }) {
           ))}
         </Stack>
       )}
+      {variant === 'dashboard' && (
+        <>
+          <Group gap="xl">
+            {[0, 1, 2, 3].map((i) => (
+              <Skeleton key={i} height={64} width={150} radius="md" />
+            ))}
+          </Group>
+          <div className="dashboard-grid">
+            <Stack gap="lg">
+              <Skeleton height={180} radius="lg" />
+              <Skeleton height={220} radius="lg" />
+            </Stack>
+            <Skeleton height={320} radius="lg" />
+          </div>
+        </>
+      )}
       {variant === 'page' && (
         <Stack gap="sm">
           <Skeleton height={16} radius="xl" />

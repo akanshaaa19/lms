@@ -9,6 +9,7 @@ import { AdminHomePage } from './pages/auth/AdminHomePage.jsx'
 import { LoginPage } from './pages/auth/LoginPage.jsx'
 import { PendingPage } from './pages/auth/PendingPage.jsx'
 import { SignupPage } from './pages/auth/SignupPage.jsx'
+import { DashboardPage } from './pages/dashboard/DashboardPage.jsx'
 import { CourseFormPage } from './pages/instructor/CourseFormPage.jsx'
 import { LessonFormPage } from './pages/instructor/LessonFormPage.jsx'
 import { ManageCoursePage } from './pages/instructor/ManageCoursePage.jsx'
@@ -55,6 +56,7 @@ export default function App() {
           <Route path="pending" element={<PendingPage />} />
 
           <Route element={<RequireRole roles={['learner', 'instructor']} />}>
+            <Route path="dashboard" element={<DashboardPage />} />
             <Route path="profile" element={<ProfilePage />} />
             {/* Instructors can preview their own lessons here too. */}
             <Route path="lessons/:lessonId" element={<LessonPage />} />

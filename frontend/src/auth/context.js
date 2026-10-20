@@ -10,9 +10,8 @@ export function useAuth() {
 export function homePathFor(role) {
   switch (role) {
     case 'learner':
-      return '/courses'
     case 'instructor':
-      return '/teach'
+      return '/dashboard'
     case 'pending_instructor':
       return '/pending'
     case 'admin':

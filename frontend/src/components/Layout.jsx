@@ -6,6 +6,7 @@ import {
   IconLogin,
   IconLogout,
   IconChalkboard,
+  IconLayoutDashboard,
   IconSchool,
   IconSettings,
   IconUserCircle,
@@ -23,6 +24,7 @@ const NAV_SECTIONS = {
     {
       label: 'Learning',
       items: [
+        { to: '/dashboard', label: 'Dashboard', icon: IconLayoutDashboard },
         { to: '/courses', label: 'Browse courses', icon: IconBooks, end: true },
         { to: '/my-courses', label: 'My courses', icon: IconSchool },
       ],
@@ -30,7 +32,13 @@ const NAV_SECTIONS = {
     { label: 'Account', items: [{ to: '/profile', label: 'Profile', icon: IconUserCircle }] },
   ],
   instructor: [
-    { label: 'Teaching', items: [{ to: '/teach', label: 'My courses', icon: IconChalkboard }] },
+    {
+      label: 'Teaching',
+      items: [
+        { to: '/dashboard', label: 'Dashboard', icon: IconLayoutDashboard },
+        { to: '/teach', label: 'My courses', icon: IconChalkboard },
+      ],
+    },
     { label: 'Account', items: [{ to: '/profile', label: 'Profile', icon: IconUserCircle }] },
   ],
   admin: [{ label: 'Administration', items: [{ to: '/admin-home', label: 'Admin', icon: IconSettings }] }],

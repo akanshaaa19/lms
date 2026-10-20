@@ -11,7 +11,7 @@ export function StatRow({ children, label }) {
   )
 }
 
-export function Stat({ label, value, ring }) {
+export function Stat({ label, value, ring, hint }) {
   return (
     <div className="stat">
       {ring !== undefined && <ProgressRing value={ring} size={52} thickness={6} />}
@@ -20,6 +20,11 @@ export function Stat({ label, value, ring }) {
           {label}
         </Text>
         <div className="stat-value">{value}</div>
+        {hint && (
+          <Text size="sm" c="dimmed" mt={2}>
+            {hint}
+          </Text>
+        )}
       </div>
     </div>
   )
