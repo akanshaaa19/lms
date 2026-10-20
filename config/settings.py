@@ -42,6 +42,7 @@ INSTALLED_APPS = [
     'accounts',
     'courses',
     'quizzes',
+    'adminpanel',
 ]
 
 # Use our own User model (email login) instead of Django's built-in one.

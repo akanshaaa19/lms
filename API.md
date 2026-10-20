@@ -113,3 +113,17 @@ Deleted courses are included, so the UI can show "Removed by the instructor on D
   recent_activity: [ { type: "enrolled" | "quiz_attempt" | "lesson_completed", learner_name, course_id, course_title, at,
                        percentage?, passed?, lesson_title? } ] }   // newest first, up to 8
 ```
+
+## Admin: `/api/admin/` (staff only; everyone else gets 403)
+
+| Method & path | Body / query | Response |
+|---|---|---|
+| `GET overview/` | none | `{users, learners, instructors, pending_instructors, courses: {published, drafts, removed}, enrollments, quiz_attempts}` |
+| `GET instructors/` | `?status=pending` or `approved` (optional) | `[{id, user_id, email, full_name, bio, is_approved, approved_at, requested_at, course_count}]`, with pending ones first |
+| `POST instructors/{id}/approve/` | none | `{id, is_approved: true, approved_at}`. `400` if already approved. |
+| `POST instructors/{id}/revoke/` | none | `{id, is_approved: false, approved_at: null}`. Their courses are kept. `400` if not approved. |
+| `GET users/` | `?search=` (name or email), `?role=learner` / `instructor` / `pending_instructor` / `admin` | `[{id, email, full_name, role, is_active, date_joined, last_login, designation, department}]`, newest first |
+| `GET courses/` | `?status=published` / `draft` / `removed`, `?search=` (title) | `[{id, title, status, instructor_name, instructor_email, lesson_count, enrolled, created_at, is_deleted, deleted_at, deletion_reason}]` |
+| `POST courses/{id}/restore/` | none | `{id, is_deleted: false}`. `404` if the course isn't removed. |
+
+`{id}` for instructors is the **InstructorProfile** id (`id` in the list), not the user id.
