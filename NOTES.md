@@ -11,7 +11,7 @@ The design choices behind the build. The API contract is in [API.md](API.md).
   - **Design review before coding.** I used it to challenge my first plan. That changed a `user_type` + `entity_id` design into profile tables with real foreign keys, and replaced a stored progress percentage with completion records.
   - **Review and hardening.** I tested each part end to end, and used review passes to find edge cases. One example is a race condition on duplicate sign-ups, now handled and tested.
 - **Django REST Framework** for the API, **React + Vite + Mantine** for the UI, the **Inter** font via Fontsource, and **Vercel + Render** for hosting.
-- TODO (Akansha): tested the apis end to end and also all functionalities.
+- I tested the APIs end to end and every feature by hand, for each role.
 
 ## How I worked
 
@@ -119,6 +119,3 @@ The organisation trains all of its staff, so the UI is built to work for everyon
 - **Versioned quizzes.** Editing a quiz replaces its questions, so past attempts keep their scores but lose the per-question detail.
 - **Scaling the dashboard query.** It's a single query today. For very large courses, its joined counts would become per-column subqueries to avoid multiplying rows.
 
-## Time spent
-
-TODO (Akansha): total time, plus a rough split across planning and data model, backend and tests, frontend, and docs.
