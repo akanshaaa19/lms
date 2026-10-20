@@ -88,3 +88,28 @@ Deleted courses are included, so the UI can show "Removed by the instructor on D
 - `QuizTake` = `{id, title, pass_mark, course_id, course_title, questions: [{id, text, order, choices: [{id, text}]}]}`
 - `AttemptSummary` = `{id, score, total, percentage, passed, submitted_at}`
 - `AttemptResult` = `AttemptSummary` plus `answers: [{question_id, question_text, selected_choice_id, selected_choice_text, correct_choice_id, correct_choice_text, is_correct}]`
+
+## Dashboard: `/api/dashboard/` (learner or instructor)
+
+`GET dashboard/` returns `200` with a body that depends on the role. There are no due dates, so "upcoming" means the next step.
+
+**Learner**
+```
+{ role: "learner",
+  stats: { enrolled, lessons_completed, courses_completed, quizzes_passed },
+  in_progress: [ { course_id, course_title, instructor_name, completed_count, total_lessons, progress_percent,
+                   last_activity, next_lesson: {id, title, order} | null,
+                   quiz: {id, title, best_percentage | null, passed} | null } ],   // most recent first; finished courses left out
+  recent_attempts: [ { quiz_id, course_id, course_title, percentage, passed, submitted_at } ],   // last 5
+  suggested_courses: [ { id, title, description, instructor_name, lesson_count } ] }           // up to 3 not enrolled
+```
+
+**Instructor**
+```
+{ role: "instructor",
+  stats: { published, drafts, learners, enrollments, learners_passed, average_progress | null, quiz_attempts, pass_rate | null },
+  courses: [ { id, title, status, lesson_count, has_quiz, enrolled, average_progress | null, passed_count } ],
+  attention: [ { course_id, course_title, tab: "lessons" | "quiz" | "overview", message } ],
+  recent_activity: [ { type: "enrolled" | "quiz_attempt" | "lesson_completed", learner_name, course_id, course_title, at,
+                       percentage?, passed?, lesson_title? } ] }   // newest first, up to 8
+```

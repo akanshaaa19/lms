@@ -119,3 +119,37 @@ class EnrolmentAndProgressTests(TestCase):
         other = make_instructor("other@example.com")
         self.assertEqual(client_for(other).get(f"/api/courses/{self.course.id}/learners/").status_code, 404)
         self.assertEqual(self.client.get(f"/api/courses/{self.course.id}/learners/").status_code, 403)
+
+
+class DashboardTests(TestCase):
+    def setUp(self):
+        self.instructor = make_instructor()
+        self.learner = make_learner()
+        self.course = make_course(self.instructor, lessons=3)
+
+    def test_learner_dashboard_points_to_the_next_lesson(self):
+        enrollment = enroll(self.learner, self.course)
+        first, second = self.course.lessons.all()[:2]
+        enrollment.completions.create(lesson=first)
+        data = client_for(self.learner).get("/api/dashboard/").json()
+        self.assertEqual(data["stats"]["lessons_completed"], 1)
+        self.assertEqual(data["in_progress"][0]["next_lesson"]["id"], second.id)
+
+    def test_learner_dashboard_leaves_out_removed_courses(self):
+        enroll(self.learner, self.course)
+        self.course.soft_delete("Out of date")
+        data = client_for(self.learner).get("/api/dashboard/").json()
+        self.assertEqual(data["in_progress"], [])
+
+    def test_instructor_dashboard_counts_learners_and_flags_missing_quiz(self):
+        enroll(self.learner, self.course)
+        data = client_for(self.instructor).get("/api/dashboard/").json()
+        self.assertEqual(data["stats"]["learners"], 1)
+        self.assertIn("Has no quiz yet.", [item["message"] for item in data["attention"]])
+        self.assertEqual(data["recent_activity"][0]["type"], "enrolled")
+
+    def test_instructor_dashboard_only_includes_own_courses(self):
+        other = make_instructor("other@example.com")
+        make_course(other, title="Not mine")
+        titles = [c["title"] for c in client_for(self.instructor).get("/api/dashboard/").json()["courses"]]
+        self.assertNotIn("Not mine", titles)

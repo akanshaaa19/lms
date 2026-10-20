@@ -5,6 +5,7 @@ from rest_framework.response import Response
 from rest_framework.views import APIView
 
 from . import access
+from .dashboard import instructor_dashboard, learner_dashboard
 from .models import Enrollment, Lesson, LessonCompletion
 from .permissions import IsInstructor, IsInstructorOrLearner, IsLearner
 from .serializers import (
@@ -166,3 +167,14 @@ class LessonCompleteView(APIView):
         LessonCompletion.objects.get_or_create(enrollment=enrollment, lesson=lesson)
         context = {"course": lesson.course, "enrollment": enrollment}
         return Response(LessonSerializer(lesson, context=context).data)
+
+
+class DashboardView(APIView):
+    """The home page: what to do next, plus key numbers, for the user's role."""
+
+    permission_classes = [IsInstructorOrLearner]
+
+    def get(self, request):
+        if request.user.is_instructor:
+            return Response(instructor_dashboard(request.user))
+        return Response(learner_dashboard(request.user))
