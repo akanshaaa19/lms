@@ -37,6 +37,7 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'rest_framework',
     # Our apps
     'accounts',
     'courses',
@@ -62,7 +63,7 @@ ROOT_URLCONF = 'config.urls'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [BASE_DIR / 'templates'],  # site-wide templates, e.g. base.html
+        'DIRS': [],
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
@@ -129,3 +130,21 @@ STATIC_URL = 'static/'
 # https://docs.djangoproject.com/en/5.2/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+# --- API ---
+# The React app talks to Django through Django REST Framework.
+REST_FRAMEWORK = {
+    # Session cookie auth: the same login Django's admin uses. DRF enforces
+    # CSRF on every unsafe request from a logged-in session.
+    'DEFAULT_AUTHENTICATION_CLASSES': [
+        'rest_framework.authentication.SessionAuthentication',
+    ],
+    # Locked by default: every endpoint needs a logged-in user unless a
+    # view explicitly opens it (signup, login, csrf, me).
+    'DEFAULT_PERMISSION_CLASSES': [
+        'rest_framework.permissions.IsAuthenticated',
+    ],
+}
+
+# The Vite dev server (React) proxies /api to Django.
+CSRF_TRUSTED_ORIGINS = ['http://localhost:5173', 'http://127.0.0.1:5173']

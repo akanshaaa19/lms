@@ -1,5 +1,6 @@
 from django.core.exceptions import ValidationError
 from django.db import models
+from django.db.models import Count, Exists, Max, OuterRef
 from django.utils import timezone
 
 from accounts.models import InstructorProfile, LearnerProfile
@@ -79,11 +80,30 @@ class Lesson(models.Model):
         return f"{self.order}. {self.title}"
 
 
+class EnrollmentQuerySet(models.QuerySet):
+    def with_progress(self):
+        """Add progress and quiz results to each enrolment in one query.
+
+        Progress is calculated here, never stored (decision E3).
+        """
+        from quizzes.models import QuizAttempt  # imported here: quizzes imports this module
+
+        return self.annotate(
+            completed_count=Count("completions", distinct=True),
+            total_lessons=Count("course__lessons", distinct=True),
+            best_percentage=Max("quiz_attempts__percentage"),
+            attempt_count=Count("quiz_attempts", distinct=True),
+            has_passed=Exists(QuizAttempt.objects.filter(enrollment=OuterRef("pk"), passed=True)),
+        )
+
+
 class Enrollment(models.Model):
     learner = models.ForeignKey(LearnerProfile, on_delete=models.CASCADE, related_name="enrollments")
     # PROTECT: courses are soft-deleted; a hard delete must not wipe records.
     course = models.ForeignKey(Course, on_delete=models.PROTECT, related_name="enrollments")
     enrolled_at = models.DateTimeField(auto_now_add=True)
+
+    objects = EnrollmentQuerySet.as_manager()
 
     class Meta:
         ordering = ["-enrolled_at"]
@@ -94,21 +114,12 @@ class Enrollment(models.Model):
     def __str__(self):
         return f"{self.learner} → {self.course}"
 
-    # Progress is calculated, never stored (decision E3).
-    @property
-    def completed_count(self):
-        return self.completions.count()
-
-    @property
-    def total_lessons(self):
-        return self.course.lessons.count()
-
     @property
     def progress_percent(self):
-        total = self.total_lessons
-        if total == 0:
+        """Needs an enrolment loaded with .with_progress()."""
+        if not self.total_lessons:
             return 0
-        return round(self.completed_count * 100 / total)
+        return round(self.completed_count * 100 / self.total_lessons)
 
 
 class LessonCompletion(models.Model):

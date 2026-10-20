@@ -13,6 +13,10 @@ class UserManager(BaseUserManager):
 
     use_in_migrations = True
 
+    def get_by_natural_key(self, email):
+        # Used at login: "Asha@Court.in" and "asha@court.in" are the same person.
+        return self.get(email__iexact=email)
+
     def _create_user(self, email, password, **extra_fields):
         if not email:
             raise ValueError("An email address is required.")
@@ -63,6 +67,19 @@ class User(AbstractUser):
     @property
     def is_pending_instructor(self):
         return hasattr(self, "instructor_profile") and not self.instructor_profile.is_approved
+
+    @property
+    def role(self):
+        """One word the frontend can switch on."""
+        if self.is_instructor:
+            return "instructor"
+        if self.is_pending_instructor:
+            return "pending_instructor"
+        if self.is_learner:
+            return "learner"
+        if self.is_staff:
+            return "admin"
+        return None
 
 
 class InstructorProfile(models.Model):
