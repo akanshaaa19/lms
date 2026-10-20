@@ -64,7 +64,7 @@ class CourseDetailView(APIView):
         return Response(CourseDetailSerializer(course, context={"request": request}).data)
 
     def delete(self, request, course_id):
-        # Soft delete: learners keep their records but lose access (decision C3).
+        # Soft delete: learners keep their records but lose access.
         course = access.get_owned_course(request.user, course_id)
         course.soft_delete(reason=str(request.data.get("reason", ""))[:255])
         return Response(status=status.HTTP_204_NO_CONTENT)
@@ -104,7 +104,7 @@ class MyCoursesView(APIView):
     permission_classes = [IsLearner]
 
     def get(self, request):
-        # Deliberately not filtered by active(): removed courses stay listed (decision C4).
+        # Deliberately not filtered by active(): removed courses stay listed.
         enrollments = (
             Enrollment.objects.filter(learner__user=request.user)
             .with_progress()

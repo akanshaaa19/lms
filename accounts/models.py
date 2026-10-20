@@ -45,7 +45,7 @@ class User(AbstractUser):
     username = None  # remove the username field inherited from AbstractUser
     email = models.EmailField("email address", unique=True)
 
-    USERNAME_FIELD = "email"  # the field used to log in
+    USERNAME_FIELD = "email"
     REQUIRED_FIELDS = ["first_name", "last_name"]  # asked for by createsuperuser
 
     objects = UserManager()
@@ -94,7 +94,6 @@ class InstructorProfile(models.Model):
         return str(self.user)
 
     def clean(self):
-        # One role per user (decision A5).
         if LearnerProfile.objects.filter(user_id=self.user_id).exists():
             raise ValidationError("This user is already a learner. A user can have only one role.")
 
@@ -115,6 +114,5 @@ class LearnerProfile(models.Model):
         return str(self.user)
 
     def clean(self):
-        # One role per user (decision A5).
         if InstructorProfile.objects.filter(user_id=self.user_id).exists():
             raise ValidationError("This user is already an instructor. A user can have only one role.")

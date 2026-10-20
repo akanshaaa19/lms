@@ -148,7 +148,7 @@ def instructor_dashboard(user):
             "average_progress": average(e.progress_percent for e in rows),
             "passed_count": sum(1 for e in rows if e.has_passed),
         })
-        # Things the instructor should fix, most important first per course.
+        # Most important problem first.
         if course.lesson_count == 0:
             attention.append({"course_id": course.id, "course_title": course.title, "tab": "lessons",
                               "message": "Has no lessons yet."})
@@ -159,7 +159,6 @@ def instructor_dashboard(user):
             attention.append({"course_id": course.id, "course_title": course.title, "tab": "overview",
                               "message": "Is still a draft, so learners can't see it."})
 
-    # Recent activity across the instructor's courses, newest first.
     recent_enrollments = (
         Enrollment.objects.filter(course_id__in=course_ids)
         .select_related("learner__user", "course").order_by("-enrolled_at")[:8]

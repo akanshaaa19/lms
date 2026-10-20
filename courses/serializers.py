@@ -84,7 +84,7 @@ class CourseWriteSerializer(serializers.ModelSerializer):
 
 
 class MyCourseSerializer(serializers.ModelSerializer):
-    """One row of a learner's "My courses", including removed courses (decision C4)."""
+    """One row of a learner's "My courses", including removed courses."""
 
     course = serializers.SerializerMethodField()
 
@@ -147,7 +147,7 @@ class LessonSerializer(serializers.ModelSerializer):
         ]
 
     def validate_order(self, order):
-        # A friendly message instead of a database error (decision C2).
+        # A friendly message; the database's unique constraint is the real guarantee.
         course = self.context["course"]
         clash = course.lessons.filter(order=order)
         if self.instance is not None:

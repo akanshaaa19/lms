@@ -7,7 +7,7 @@ from accounts.models import InstructorProfile, LearnerProfile
 
 
 class CourseQuerySet(models.QuerySet):
-    """Reusable filters, called explicitly in views (decision C6).
+    """Reusable filters, called explicitly in views.
 
     Example: Course.objects.active().published()
     """
@@ -36,7 +36,7 @@ class Course(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
-    # Soft delete (decision C3): set instead of removing the row.
+    # Soft delete: set instead of removing the row.
     deleted_at = models.DateTimeField(null=True, blank=True)
     deletion_reason = models.CharField(max_length=255, blank=True)
 
@@ -72,7 +72,6 @@ class Lesson(models.Model):
     class Meta:
         ordering = ["order"]
         constraints = [
-            # Two lessons in the same course can't share a position (decision C2).
             models.UniqueConstraint(fields=["course", "order"], name="unique_lesson_order_per_course"),
         ]
 
@@ -84,7 +83,7 @@ class EnrollmentQuerySet(models.QuerySet):
     def with_progress(self):
         """Add progress and quiz results to each enrolment in one query.
 
-        Progress is calculated here, never stored (decision E3).
+        Progress is calculated here, never stored.
         """
         from quizzes.models import QuizAttempt  # imported here: quizzes imports this module
 
@@ -136,6 +135,5 @@ class LessonCompletion(models.Model):
         return f"{self.enrollment.learner} completed {self.lesson}"
 
     def clean(self):
-        # The lesson must belong to the course the learner is enrolled in (decision E2).
         if self.lesson.course_id != self.enrollment.course_id:
             raise ValidationError("This lesson is not part of the enrolled course.")

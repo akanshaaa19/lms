@@ -22,8 +22,7 @@ class QuestionEditSerializer(serializers.ModelSerializer):
         read_only_fields = ["id", "order"]
 
     def validate_choices(self, choices):
-        # R5: each question has exactly one correct answer. The database stops
-        # a second one (decision Q2); this also catches "none marked correct".
+        # The database stops a second correct answer; this also catches none.
         if len(choices) < 2:
             raise serializers.ValidationError("Each question needs at least two choices.")
         correct = sum(1 for choice in choices if choice.get("is_correct"))
@@ -49,7 +48,7 @@ class QuizEditSerializer(serializers.ModelSerializer):
     def save_for_course(self, course):
         """Create the course's quiz, or replace its questions with the ones sent.
 
-        Past attempts keep their stored scores (decision Q7).
+        Past attempts keep their stored scores.
         """
         data = self.validated_data
         quiz, _ = Quiz.objects.update_or_create(

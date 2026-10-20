@@ -19,7 +19,7 @@ DUPLICATE_EMAIL = "An account with this email already exists. Try logging in ins
 
 
 class SignUpSerializer(serializers.Serializer):
-    """Creates a user and exactly one profile (decision A5)."""
+    """Creates a user and exactly one profile."""
 
     first_name = serializers.CharField(max_length=150)
     last_name = serializers.CharField(max_length=150)
@@ -34,8 +34,7 @@ class SignUpSerializer(serializers.Serializer):
         return value
 
     def validate(self, data):
-        # Run Django's password rules (length, too common, all numbers,
-        # too similar to the name or email) against the would-be user.
+        # Django's password rules compare against the name and email, so they need an unsaved user.
         candidate = User(email=data["email"], first_name=data["first_name"], last_name=data["last_name"])
         try:
             validate_password(data["password"], user=candidate)
@@ -84,7 +83,6 @@ class ProfileSerializer(serializers.ModelSerializer):
 
     def to_representation(self, user):
         data = super().to_representation(user)
-        # Only show the fields that belong to this user's role.
         if not hasattr(user, "instructor_profile"):
             data.pop("bio", None)
         if not hasattr(user, "learner_profile"):

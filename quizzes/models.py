@@ -5,7 +5,6 @@ from courses.models import Course, Enrollment
 
 
 class Quiz(models.Model):
-    # One quiz per course (decision Q1).
     course = models.OneToOneField(Course, on_delete=models.CASCADE, related_name="quiz")
     title = models.CharField(max_length=200)
     pass_mark = models.PositiveSmallIntegerField(
@@ -44,10 +43,8 @@ class Choice(models.Model):
     class Meta:
         ordering = ["id"]
         constraints = [
-            # A partial unique constraint: among rows where is_correct is True,
-            # each question may appear only once. So the database allows at most
-            # one correct choice per question (decision Q2). "At least one" is
-            # checked when the instructor saves the question in a form.
+            # Partial unique index: at most one correct choice per question.
+            # "At least one" is checked by the quiz builder and the admin form.
             models.UniqueConstraint(
                 fields=["question"],
                 condition=models.Q(is_correct=True),
@@ -60,14 +57,14 @@ class Choice(models.Model):
 
 
 class QuizAttempt(models.Model):
-    """One submitted attempt. Every attempt is kept (decision Q3)."""
+    """One submitted attempt. Every attempt is kept."""
 
     enrollment = models.ForeignKey(Enrollment, on_delete=models.CASCADE, related_name="quiz_attempts")
     # PROTECT: a quiz that learners have attempted can't be deleted.
     quiz = models.ForeignKey(Quiz, on_delete=models.PROTECT, related_name="attempts")
 
     # Stored, not calculated, so a later edit to the quiz never changes
-    # a past result (decision Q5).
+    # a past result.
     score = models.PositiveSmallIntegerField(help_text="Number of correct answers")
     total = models.PositiveSmallIntegerField(help_text="Number of questions")
     percentage = models.PositiveSmallIntegerField()
@@ -82,7 +79,7 @@ class QuizAttempt(models.Model):
 
 
 class AttemptAnswer(models.Model):
-    """The choice a learner picked for one question in one attempt (decision Q4)."""
+    """The choice a learner picked for one question in one attempt."""
 
     attempt = models.ForeignKey(QuizAttempt, on_delete=models.CASCADE, related_name="answers")
     question = models.ForeignKey(Question, on_delete=models.CASCADE)
