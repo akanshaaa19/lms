@@ -69,3 +69,26 @@ Every design decision we make, why we made it, and what we gave up. This feeds i
 | Q6 | Marking lives in one function, `quizzes/grading.py: grade_quiz()`, not in a view. An unanswered question counts as wrong. A choice from a different question is rejected. The attempt and its answers save together inside a transaction. | Easy to test (R9). A tampered form can't score points. A half-saved attempt is impossible. |
 | Q7 | `QuizAttempt.quiz` uses `PROTECT`: a quiz that has been attempted can't be deleted. Deleting a question removes its `AttemptAnswer` rows, but the stored score stays. | Keeps results as a record while still letting instructors fix questions. |
 | Q5 | Scores are stored even though progress is calculated (compare E3). | An attempt is a historical record: editing the quiz later must not change a past score. |
+
+## Frontend and API
+
+| # | Decision | Why |
+|---|----------|-----|
+| F1 | React (Vite, plain JavaScript, Mantine components) in `frontend/`, calling a Django REST Framework API. Django templates were tried first and rejected. | The user wanted a better UI than plain templates. Mantine gives accessible, polished components quickly. |
+| F2 | Session-cookie login with CSRF, not tokens. React fetches `/api/auth/csrf/` and sends `X-CSRFToken` on every change. | The session cookie is `HttpOnly`, so an XSS bug can't steal it. This is Django's own login and CSRF protection, used as intended. |
+| F3 | Sign-up and login views add `csrf_protect` explicitly. | DRF only checks CSRF for logged-in sessions. Without this, another site could log a visitor into an attacker's account (login CSRF). Tested. |
+| F4 | Vite's dev server proxies `/api` and `/admin` to Django. | One origin in the browser, so no CORS setup and the cookies just work. |
+| F5 | API is locked by default (`IsAuthenticated`), and only csrf, me, signup and login are opened explicitly. | Forgetting a permission fails safe. |
+| F6 | Ownership is enforced by looking objects up in the user's own queryset (`courses/access.py`). Another instructor's course, or a draft or deleted course for a learner, returns 404, not 403. | The API never confirms that a hidden course exists, which is what "even by guessing the URL" (R7) requires. |
+| F7 | Not enrolled returns 403 with a readable message ("Enrol in this course…"). | The learner can see the course, so explaining what to do is more useful than pretending it doesn't exist. |
+| F8 | Login failure gives one message for a wrong email or a wrong password. | Doesn't reveal which emails have accounts. |
+| F9 | The quiz-taking API never sends `is_correct`. Correct answers are shown only in the result, after submitting. | Can't cheat by reading the API response. Seeing corrections after an attempt is how people learn. |
+| F10 | Progress and best scores come from one annotated query, `Enrollment.objects.with_progress()`. | The dashboard is one query, not one per learner. Still calculated, never stored (E3). |
+| F11 | The quiz builder saves the whole quiz in one `PUT` and replaces the questions inside a transaction. | Simpler for the instructor UI and the code. Past attempts keep their stored scores (Q7). |
+
+## Delivery
+
+| # | Decision | Why |
+|---|----------|-----|
+| D1 | `python manage.py seed_demo` creates an admin, an approved instructor, two learners, one published course (4 lessons, 4-question quiz) and one draft course. Asha has partial progress and a failed attempt, and Ravi hasn't enrolled. It's safe to run again. | The demo shows every state: progress, a failed attempt, an unenrolled learner and a hidden draft. |
+| D2 | Tests use DRF's `APIClient` against real endpoints, plus direct tests of `grade_quiz()` and the database constraint. | Tests permissions where they're actually enforced, on the server. |
