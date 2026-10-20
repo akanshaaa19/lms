@@ -94,7 +94,9 @@ main:focus-visible {
   padding: 20px 14px 16px;
   position: sticky;
   top: 0;
-  height: calc(100vh - 24px);
+  /* Window height minus the shell's 12px padding top and bottom and the
+     canvas's 1px border top and bottom. */
+  height: calc(100vh - 26px);
 }
 .main-area {
   flex: 1;
@@ -323,8 +325,10 @@ main:focus-visible {
   font-size: 18px;
   line-height: 1.75;
 }
-/* Lesson action bar: fixed to the bottom of the content area, so its
-   buttons stay in the same place however long the lesson is. */
+/* Lesson action bar. Narrow screens: fixed to the bottom of the window.
+   Wide screens: the last row of the lesson column, under the scrolling
+   text. Either way its buttons stay in the same place, however long the
+   lesson is. */
 .lesson-bar {
   position: fixed;
   bottom: 0;
@@ -337,11 +341,10 @@ main:focus-visible {
   padding: 12px 16px;
 }
 @media (min-width: 62em) {
-  /* Line up with the main column: page padding + sidebar + its border. */
   .lesson-bar {
-    left: calc(12px + 264px + 1px);
-    right: 13px;
-    padding: 14px 40px;
+    position: static;
+    box-shadow: none;
+    padding: 14px 0 0;
   }
 }
 .lesson-bar-inner {
@@ -528,4 +531,140 @@ main:focus-visible {
 }
 .mantine-InputWrapper-required {
   color: var(--lms-danger);
+}
+
+/* Lesson reader with the course outline beside it. */
+.lesson-layout {
+  display: grid;
+  gap: 32px;
+  align-items: start;
+}
+@media (min-width: 62em) {
+  .lesson-layout {
+    grid-template-columns: 280px minmax(0, 1fr);
+  }
+}
+
+/* Wide screens: a sticky side panel. Narrow screens: a <details> on top. */
+.lesson-outline-wide {
+  display: none;
+}
+@media (min-width: 62em) {
+  .lesson-outline-wide {
+    display: block;
+    height: 100%;
+    overflow-y: auto;
+    padding: 16px;
+    border: 1px solid var(--lms-border);
+    border-radius: 12px;
+    background: var(--lms-surface);
+  }
+  .lesson-outline-narrow {
+    display: none;
+  }
+}
+.lesson-outline-narrow {
+  border: 1px solid var(--lms-border);
+  border-radius: 12px;
+  background: var(--lms-surface);
+  padding: 4px 12px;
+}
+.lesson-outline-narrow summary {
+  min-height: 44px;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  cursor: pointer;
+}
+
+.lesson-outline-progress {
+  height: 6px;
+  border-radius: 999px;
+  background: var(--lms-sage-1);
+  overflow: hidden;
+  margin-bottom: 12px;
+}
+.lesson-outline-progress > div {
+  height: 100%;
+  background: var(--lms-sage-5);
+}
+
+.lesson-outline-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: 2px;
+}
+.lesson-outline-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  min-height: 44px;
+  padding: 8px 10px;
+  border-radius: 8px;
+  color: var(--lms-ink);
+  text-decoration: none;
+}
+.lesson-outline-item:hover {
+  background: var(--lms-sage-0);
+}
+/* The lesson you're reading: a sage pill plus a bar, like the sidebar. */
+.lesson-outline-item[aria-current='page'] {
+  background: var(--lms-sage-1);
+  box-shadow: inset 3px 0 0 var(--lms-sage-5);
+  font-weight: 600;
+}
+.lesson-outline-icon {
+  flex-shrink: 0;
+  margin-top: 1px;
+  color: var(--lms-muted);
+}
+.lesson-outline-icon[data-done] {
+  color: var(--lms-sage-5);
+}
+.lesson-outline-text {
+  display: grid;
+  gap: 2px;
+  min-width: 0;
+}
+.lesson-outline-title {
+  font-size: 15px;
+  line-height: 1.35;
+}
+.lesson-outline-status {
+  font-size: 13px;
+  font-weight: 400;
+  color: var(--lms-muted);
+}
+.lesson-outline-status[data-done] {
+  color: var(--lms-success);
+}
+
+/* Wide screens: the layout is given the window's remaining height
+   (useFillViewport), and only the lesson text scrolls inside it. */
+.lesson-main {
+  min-width: 0;
+}
+@media (min-width: 62em) {
+  .lesson-layout {
+    min-height: 0;
+  }
+  /* Less empty space under the lesson's action bar. */
+  .main-content:has(.lesson-layout) {
+    padding-bottom: 20px;
+  }
+  .lesson-main {
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    min-height: 0;
+  }
+  .lesson-scroll {
+    flex: 1;
+    min-height: 0;
+    overflow-y: auto;
+    padding-right: 16px;
+    border-radius: 8px;
+  }
 }
