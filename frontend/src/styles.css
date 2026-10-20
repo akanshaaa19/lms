@@ -1,76 +1,43 @@
+/* Layout and component styles. Colours come only from theme.js
+   (Mantine variables or --lms-* tokens); none are hard-coded here. */
+
 body {
-  font-size: 1.0625rem;
-  line-height: 1.55;
-  color: #1a1a1a;
-  background: #f6f7f9;
+  background: var(--lms-page);
+  color: var(--lms-ink);
+  font-feature-settings: 'cv11', 'ss01';
+  -webkit-font-smoothing: antialiased;
 }
 
-/* A two-tone focus ring (yellow inside, near-black outside) is visible on
-   any background, including our blue buttons and white cards. */
+/* Focus ring for buttons, links, tabs, nav items and radios: a calm 2px
+   ink outline with a 2px gap. !important so Mantine's own ring colour
+   doesn't override it. Form fields use their own style below. */
 :focus-visible {
-  outline: 3px solid #ffbf47 !important;
-  outline-offset: 0 !important;
-  box-shadow: 0 0 0 6px #1a1a1a !important;
+  outline: 2px solid var(--lms-ink) !important;
+  outline-offset: 2px !important;
 }
 
-/* Headings receive focus on page change; they don't need a ring. */
 .page-heading:focus,
 .page-heading:focus-visible,
-main:focus {
+main:focus,
+main:focus-visible {
   outline: none !important;
   box-shadow: none !important;
 }
 
-/* Skip link: hidden until a keyboard user tabs to it. */
 .skip-link {
   position: absolute;
   left: 1rem;
   top: -4rem;
   z-index: 1000;
   padding: 0.75rem 1rem;
-  background: #ffbf47;
-  color: #1a1a1a;
+  border-radius: 8px;
+  background: var(--lms-ink);
+  color: var(--lms-surface);
   font-weight: 700;
   text-decoration: underline;
 }
 .skip-link:focus {
-  top: 0.5rem;
-}
-
-/* Recommended minimum touch target size. */
-.mantine-Button-root {
-  min-height: 44px;
-}
-
-.nav-link {
-  color: #ffffff;
-  text-decoration: none;
-  font-weight: 500;
-  padding: 0.5rem 0.25rem;
-  display: inline-block;
-}
-.nav-link:hover {
-  text-decoration: underline;
-}
-.nav-link[aria-current='page'] {
-  font-weight: 700;
-  text-decoration: underline;
-  text-decoration-thickness: 3px;
-  text-underline-offset: 0.3em;
-}
-
-.pre-wrap {
-  white-space: pre-wrap;
-}
-
-.lesson-list {
-  list-style: none;
-  padding: 0;
-  margin: 0;
-}
-
-.error-summary:focus {
-  outline: 3px solid #ffbf47;
+  top: 0.75rem;
 }
 
 .visually-hidden {
@@ -80,4 +47,485 @@ main:focus {
   overflow: hidden;
   clip: rect(0 0 0 0);
   white-space: nowrap;
+}
+
+.pre-wrap {
+  white-space: pre-wrap;
+}
+
+/* Minimum touch target size. */
+.mantine-Button-root {
+  min-height: 44px;
+}
+
+/* ---------- App shell ---------- */
+.shell {
+  min-height: 100vh;
+  display: flex;
+}
+@media (min-width: 62em) {
+  .shell {
+    padding: 12px;
+    gap: 0;
+  }
+  .shell-canvas {
+    border-radius: 16px;
+    border: 1px solid var(--lms-border);
+    box-shadow: var(--mantine-shadow-sm);
+    overflow: hidden;
+  }
+}
+.shell-canvas {
+  flex: 1;
+  display: flex;
+  background: var(--lms-surface);
+  min-width: 0;
+}
+.sidebar-col {
+  width: 264px;
+  flex-shrink: 0;
+  border-right: 1px solid var(--lms-border);
+  background: var(--lms-surface);
+}
+.sidebar {
+  background: var(--lms-surface);
+  display: flex;
+  flex-direction: column;
+  padding: 20px 14px 16px;
+  position: sticky;
+  top: 0;
+  height: calc(100vh - 24px);
+}
+.main-area {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+}
+.main-content {
+  width: 100%;
+  max-width: 1180px;
+  padding: 32px 40px 64px;
+}
+@media (max-width: 48em) {
+  .main-content {
+    padding: 20px 16px 48px;
+  }
+}
+.mobile-bar {
+  border-bottom: 1px solid var(--lms-border);
+  background: var(--lms-surface);
+  padding: 8px 12px;
+  position: sticky;
+  top: 0;
+  z-index: 50;
+}
+
+.nav-section-label {
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--lms-muted);
+  padding: 0 12px;
+  margin: 20px 0 6px;
+}
+.nav-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  min-height: 44px;
+  padding: 0 12px;
+  border-radius: 10px;
+  color: var(--lms-ink);
+  font-weight: 500;
+  text-decoration: none;
+}
+.nav-item svg {
+  color: var(--lms-muted);
+  flex-shrink: 0;
+}
+.nav-item:hover {
+  background: var(--lms-surface-muted);
+}
+.nav-item[aria-current='page'] {
+  background: var(--lms-sage-1);
+  color: var(--lms-ink);
+  font-weight: 600;
+  box-shadow: inset 3px 0 0 var(--lms-sage-5);
+}
+.nav-item[aria-current='page'] svg {
+  color: var(--lms-sage-7);
+}
+
+/* ---------- Building blocks ---------- */
+.surface-card {
+  background: var(--lms-surface);
+  border: 1px solid var(--lms-border);
+  border-radius: 12px;
+  box-shadow: var(--mantine-shadow-xs);
+}
+
+.icon-tile {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 10px;
+  flex-shrink: 0;
+}
+
+.stat-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: stretch;
+}
+.stat {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 4px 32px 4px 0;
+  margin: 8px 32px 8px 0;
+  border-right: 1px solid var(--lms-border);
+}
+.stat:last-child {
+  border-right: 0;
+  margin-right: 0;
+  padding-right: 0;
+}
+.stat-value {
+  font-size: 28px;
+  font-weight: 600;
+  line-height: 1.1;
+}
+@media (max-width: 36em) {
+  .stat {
+    border-right: 0;
+    padding-right: 0;
+    margin-right: 24px;
+  }
+}
+
+.status-dot {
+  display: inline-block;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.tag-pill {
+  display: inline-block;
+  font-size: 12px;
+  font-weight: 500;
+  line-height: 1;
+  padding: 4px 8px;
+  border-radius: 6px;
+  background: var(--lms-sage-0);
+  border: 1px solid var(--lms-sage-1);
+  color: var(--lms-ink);
+}
+
+/* Toolbar search: borderless, with an icon. */
+.toolbar-search input {
+  border: 0;
+  background: transparent;
+}
+
+/* Tables */
+.table-card {
+  border: 1px solid var(--lms-border);
+  border-radius: 12px;
+  overflow: hidden;
+  background: var(--lms-surface);
+}
+.table-card table thead th {
+  background: var(--lms-surface-muted);
+  color: var(--lms-muted);
+  font-weight: 600;
+  font-size: 14px;
+  white-space: nowrap;
+}
+.sort-button {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  min-height: 36px;
+  font: inherit;
+  color: inherit;
+  background: none;
+  border: 0;
+  padding: 0;
+  cursor: pointer;
+}
+.sort-button:hover {
+  color: var(--lms-ink);
+}
+
+/* A card whose title link covers the whole card: one tab stop, big target. */
+.card-link-wrap {
+  position: relative;
+}
+.card-link::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: 12px;
+}
+.card-link-wrap:hover {
+  border-color: var(--lms-sage-3);
+  box-shadow: var(--mantine-shadow-md);
+}
+.card-link-wrap .card-actions {
+  position: relative;
+  z-index: 1;
+}
+
+.lesson-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+.lesson-row {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 14px 16px;
+  border-bottom: 1px solid var(--lms-border);
+}
+.lesson-row:last-child {
+  border-bottom: 0;
+}
+.lesson-number {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 600;
+  font-size: 14px;
+  background: var(--lms-surface-muted);
+  border: 1px solid var(--lms-border);
+  color: var(--lms-muted);
+  flex-shrink: 0;
+}
+.lesson-number[data-done='true'] {
+  background: var(--lms-sage-1);
+  border-color: var(--lms-sage-1);
+  color: var(--lms-sage-7);
+}
+
+/* Lesson reader */
+.reader {
+  max-width: 70ch;
+}
+.reader-body {
+  font-size: 18px;
+  line-height: 1.75;
+}
+/* Lesson action bar: fixed to the bottom of the content area, so its
+   buttons stay in the same place however long the lesson is. */
+.lesson-bar {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  z-index: 100;
+  background: var(--lms-surface);
+  border-top: 1px solid var(--lms-border);
+  box-shadow: 0 -4px 16px rgba(17, 17, 17, 0.06);
+  padding: 12px 16px;
+}
+@media (min-width: 62em) {
+  /* Line up with the main column: page padding + sidebar + its border. */
+  .lesson-bar {
+    left: calc(12px + 264px + 1px);
+    right: 13px;
+    padding: 14px 40px;
+  }
+}
+.lesson-bar-inner {
+  max-width: 1100px;
+}
+@media (max-width: 30em) {
+  /* Narrow screens or high zoom: stack instead of overflowing. */
+  .lesson-bar-inner,
+  .lesson-bar-inner > * {
+    width: 100%;
+  }
+  .lesson-bar-inner .mantine-Button-root {
+    flex: 1 1 auto;
+  }
+}
+.sticky-action {
+  position: sticky;
+  bottom: 0;
+  z-index: 5;
+  background: var(--lms-surface);
+  border-top: 1px solid var(--lms-border);
+  padding: 12px 0;
+}
+
+/* Quiz answers: real radios inside a full-width clickable label. */
+.question-fieldset {
+  border: 0;
+  margin: 0;
+  padding: 0;
+  min-width: 0;
+}
+.question-fieldset legend {
+  font-size: 17px;
+  font-weight: 600;
+  padding: 0;
+  margin-bottom: 14px;
+}
+.option-row {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  min-height: 52px;
+  padding: 12px 16px;
+  border: 1px solid var(--lms-border);
+  border-radius: 10px;
+  cursor: pointer;
+  background: var(--lms-surface);
+}
+.option-row + .option-row {
+  margin-top: 10px;
+}
+.option-row:hover {
+  border-color: var(--lms-sage-3);
+  background: var(--lms-surface-muted);
+}
+.option-row:has(input:checked) {
+  border-color: var(--lms-sage-5);
+  background: var(--lms-sage-0);
+  box-shadow: inset 0 0 0 1px var(--lms-sage-5);
+}
+.option-row input {
+  width: 20px;
+  height: 20px;
+  margin: 0;
+  accent-color: var(--lms-sage-7);
+  flex-shrink: 0;
+}
+.question-error {
+  color: var(--lms-danger);
+  font-weight: 600;
+  margin: 10px 0 0;
+}
+
+/* Auth split layout */
+.auth-shell {
+  min-height: 100vh;
+  display: grid;
+  grid-template-columns: 1fr;
+  background: var(--lms-surface);
+}
+@media (min-width: 62em) {
+  .auth-shell {
+    grid-template-columns: minmax(380px, 5fr) 7fr;
+  }
+}
+.brand-panel {
+  position: relative;
+  overflow: hidden;
+  color: var(--lms-surface);
+  background: linear-gradient(160deg, var(--lms-ink) 0%, var(--lms-ink-hover) 100%);
+  padding: 48px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+.brand-panel .shape {
+  position: absolute;
+  border-radius: 50%;
+  background: var(--lms-sage-4);
+  opacity: 0.35;
+  pointer-events: none;
+}
+.brand-panel .shape-1 {
+  width: 420px;
+  height: 420px;
+  right: -140px;
+  top: -120px;
+}
+.brand-panel .shape-2 {
+  width: 260px;
+  height: 260px;
+  left: -90px;
+  bottom: -60px;
+  opacity: 0.2;
+}
+.brand-panel .shape-3 {
+  width: 120px;
+  height: 120px;
+  right: 80px;
+  bottom: 140px;
+  border-radius: 28px;
+  transform: rotate(18deg);
+  opacity: 0.45;
+}
+.auth-form-area {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 40px 20px;
+  background: var(--lms-page);
+}
+
+.removed {
+  background: var(--lms-surface-muted);
+}
+
+/* ---------- Form fields: calm but still accessible ----------
+   Resting border 3.1:1 on white; focus darkens the border to ink and adds
+   a soft glow instead of a thick ring, so nothing jumps. */
+.mantine-Input-input {
+  border: 1px solid var(--lms-input-border);
+  border-radius: 8px;
+  background: var(--lms-surface);
+  transition: border-color 120ms ease, box-shadow 120ms ease;
+}
+.mantine-Input-input:hover {
+  border-color: var(--lms-input-border-hover);
+}
+.mantine-Input-input:focus,
+.mantine-Input-input:focus-visible,
+.mantine-Input-input:focus-within,
+.mantine-Input-input[data-focus] {
+  outline: none !important;
+  border-color: var(--lms-ink);
+  box-shadow: 0 0 0 3px var(--lms-input-focus-glow);
+}
+.mantine-Input-input[data-error],
+.mantine-Input-input[aria-invalid='true'] {
+  border-color: var(--lms-danger);
+}
+.mantine-Input-input[data-error]:focus,
+.mantine-Input-input[aria-invalid='true']:focus {
+  border-color: var(--lms-danger);
+  box-shadow: 0 0 0 3px var(--lms-danger-glow);
+}
+.mantine-Input-input::placeholder {
+  color: var(--lms-muted);
+  opacity: 1;
+}
+/* The toolbar search sits in a bordered bar already: the bar itself
+   shows focus (ink border + glow) while the search box is focused. */
+.search-bar:has(.toolbar-search input:focus) {
+  border-color: var(--lms-ink);
+  box-shadow: 0 0 0 3px var(--lms-input-focus-glow);
+}
+.toolbar-search .mantine-Input-input {
+  border: 0 !important;
+  box-shadow: none !important;
+  background: transparent;
+}
+.mantine-Radio-radio:not(:checked),
+.mantine-Checkbox-input:not(:checked) {
+  border-color: var(--lms-input-border);
+}
+.mantine-InputWrapper-required {
+  color: var(--lms-danger);
 }

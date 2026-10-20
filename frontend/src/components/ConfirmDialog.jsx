@@ -4,14 +4,14 @@ import { Button, Group, Modal, Stack } from '@mantine/core'
 // returns focus to the button that opened it.
 export function ConfirmDialog({ opened, onClose, title, confirmLabel, onConfirm, loading, danger, children }) {
   return (
-    <Modal opened={opened} onClose={onClose} title={title} centered size="lg">
+    <Modal opened={opened} onClose={onClose} title={title} centered size="lg" radius="lg">
       <Stack gap="md">
         {children}
         <Group justify="flex-end">
           <Button variant="default" onClick={onClose}>
             Cancel
           </Button>
-          <Button color={danger ? 'red.8' : undefined} onClick={onConfirm} loading={loading}>
+          <Button color={danger ? 'danger' : undefined} onClick={onConfirm} loading={loading}>
             {confirmLabel}
           </Button>
         </Group>

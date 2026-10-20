@@ -25,8 +25,10 @@ export function ErrorSummary({ items = [], general = [], focusKey = 0 }) {
       ref={ref}
       tabIndex={-1}
       className="error-summary"
-      color="red"
+      color="danger"
       variant="outline"
+      radius="lg"
+      styles={{ root: { background: 'var(--lms-danger-tint)', borderWidth: 2 }, icon: { color: 'var(--lms-danger)' } }}
       icon={<IconAlertCircle aria-hidden="true" />}
       title={
         <Title order={2} size="h4">
@@ -40,7 +42,7 @@ export function ErrorSummary({ items = [], general = [], focusKey = 0 }) {
         ))}
         {items.map((item) => (
           <List.Item key={item.id}>
-            <Anchor href={`#${item.id}`} c="red.9" fw={600} onClick={(e) => focusField(e, item.id)}>
+            <Anchor href={`#${item.id}`} c="var(--lms-danger)" fw={600} onClick={(e) => focusField(e, item.id)}>
               {item.message}
             </Anchor>
           </List.Item>

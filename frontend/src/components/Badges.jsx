@@ -1,40 +1,35 @@
 import { Badge } from '@mantine/core'
-import { IconCheck, IconPencil, IconWorld, IconX } from '@tabler/icons-react'
+import { IconCheck } from '@tabler/icons-react'
 
-// Badges always include text; colour is never the only signal.
+import { StatusPill } from './StatusLabel.jsx'
+
+// Every badge has text; colour is never the only signal.
 
 export function StatusBadge({ status }) {
-  if (status === 'published') {
-    return (
-      <Badge color="green.9" variant="light" leftSection={<IconWorld size={14} aria-hidden="true" />}>
-        Published
-      </Badge>
-    )
-  }
-  return (
-    <Badge color="gray.8" variant="light" leftSection={<IconPencil size={14} aria-hidden="true" />}>
-      Draft
-    </Badge>
-  )
+  return <StatusPill status={status === 'published' ? 'published' : 'draft'} />
 }
 
 export function ResultBadge({ passed }) {
   if (passed === null || passed === undefined) return null
-  return passed ? (
-    <Badge color="green.9" variant="light" leftSection={<IconCheck size={14} aria-hidden="true" />}>
-      Passed
-    </Badge>
-  ) : (
-    <Badge color="red.9" variant="light" leftSection={<IconX size={14} aria-hidden="true" />}>
-      Not passed yet
-    </Badge>
-  )
+  return <StatusPill status={passed ? 'passed' : 'not_passed'} />
 }
 
 export function EnrolledBadge() {
   return (
-    <Badge color="court" variant="light" leftSection={<IconCheck size={14} aria-hidden="true" />}>
+    <Badge
+      variant="light"
+      radius="xl"
+      size="lg"
+      leftSection={<IconCheck size={14} aria-hidden="true" />}
+      styles={{
+        root: { background: 'var(--lms-sage-1)', color: 'var(--lms-ink)', textTransform: 'none', fontWeight: 600 },
+      }}
+    >
       Enrolled
     </Badge>
   )
+}
+
+export function TagPill({ children }) {
+  return <span className="tag-pill">{children}</span>
 }

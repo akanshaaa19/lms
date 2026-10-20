@@ -1,3 +1,4 @@
+import '@fontsource-variable/inter'
 import '@mantine/core/styles.css'
 import '@mantine/notifications/styles.css'
 import './styles.css'
@@ -10,12 +11,12 @@ import { BrowserRouter } from 'react-router-dom'
 
 import App from './App.jsx'
 import { AuthProvider } from './auth/AuthProvider.jsx'
-import { theme } from './theme.js'
+import { cssVariablesResolver, theme } from './theme.js'
 
 createRoot(document.getElementById('root')).render(
   <StrictMode>
-    <MantineProvider theme={theme} defaultColorScheme="light">
-      <Notifications position="top-center" />
+    <MantineProvider theme={theme} defaultColorScheme="light" cssVariablesResolver={cssVariablesResolver}>
+      <Notifications position="bottom-center" zIndex={400} />
       <BrowserRouter>
         <AuthProvider>
           <App />

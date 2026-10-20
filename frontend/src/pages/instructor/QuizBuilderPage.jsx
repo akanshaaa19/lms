@@ -1,4 +1,4 @@
-import { ActionIcon, Button, Group, NumberInput, Paper, Radio, Stack, Text, TextInput, Textarea, Title } from '@mantine/core'
+import { ActionIcon, Button, Group, NumberInput, Paper, Radio, Stack, TextInput, Textarea, Title } from '@mantine/core'
 import { useForm } from '@mantine/form'
 import { randomId } from '@mantine/hooks'
 import { notifications } from '@mantine/notifications'
@@ -6,7 +6,6 @@ import { IconPlus, IconTrash } from '@tabler/icons-react'
 import { Link, useNavigate, useParams } from 'react-router-dom'
 
 import { api } from '../../api.js'
-import { BackLink } from '../../components/BackLink.jsx'
 import { ErrorSummary } from '../../components/ErrorSummary.jsx'
 import { Page } from '../../components/Page.jsx'
 import { ErrorState, Loading } from '../../components/States.jsx'
@@ -103,22 +102,28 @@ function QuizBuilder({ course, quiz }) {
       })),
     }
     await api.put(`/courses/${course.id}/quiz/`, payload)
-    notifications.show({ color: 'green', message: 'Quiz saved.' })
-    navigate(`/teach/courses/${course.id}`)
+    notifications.show({ message: 'Quiz saved.' })
+    navigate(`/teach/courses/${course.id}/quiz`)
   })
 
   const { questions } = form.getValues()
   const generalErrors = [...general, ...(form.errors.questions ? [form.errors.questions] : [])]
 
   return (
-    <Page title={quiz ? 'Edit quiz' : 'Create quiz'}>
-      <BackLink to={`/teach/courses/${course.id}`}>Back to {course.title}</BackLink>
-      <Text>Each question needs at least two choices, and exactly one correct answer.</Text>
+    <Page
+      title={quiz ? 'Edit quiz' : 'Create quiz'}
+      subtitle="Each question needs at least two choices, and exactly one correct answer."
+      breadcrumbs={[
+        { label: 'Your courses', to: '/teach' },
+        { label: course.title, to: `/teach/courses/${course.id}/quiz` },
+        { label: quiz ? 'Edit quiz' : 'Create quiz' },
+      ]}
+    >
       <ErrorSummary items={summaryItems(form.errors)} general={generalErrors} focusKey={attempt} />
 
       <form onSubmit={onSubmit} noValidate>
         <Stack gap="lg">
-          <Paper withBorder p="lg" radius="md">
+          <Paper withBorder p="lg" radius="lg" shadow="xs">
             <Group align="flex-start" wrap="wrap" gap="md">
               <TextInput id={ids.title} label="Quiz title" required style={{ flex: '1 1 20rem' }} {...form.getInputProps('title')} />
               <NumberInput
@@ -136,7 +141,7 @@ function QuizBuilder({ course, quiz }) {
           </Paper>
 
           {questions.map((question, qi) => (
-            <Paper key={question.key} withBorder p="lg" radius="md" component="section" aria-labelledby={`quiz-q${qi}-heading`}>
+            <Paper key={question.key} withBorder p="lg" radius="lg" shadow="xs" component="section" aria-labelledby={`quiz-q${qi}-heading`}>
               <Stack gap="md">
                 <Group justify="space-between">
                   <Title order={2} size="h4" id={`quiz-q${qi}-heading`}>
@@ -145,7 +150,7 @@ function QuizBuilder({ course, quiz }) {
                   {questions.length > 1 && (
                     <Button
                       variant="subtle"
-                      color="red.8"
+                      color="danger"
                       size="sm"
                       onClick={() => form.removeListItem('questions', qi)}
                       leftSection={<IconTrash size={16} aria-hidden="true" />}
@@ -157,8 +162,8 @@ function QuizBuilder({ course, quiz }) {
                 <Textarea
                   id={ids.question(qi)}
                   label="Question"
-                  autosize
-                  minRows={2}
+                  rows={3}
+                  resize="vertical"
                   required
                   {...form.getInputProps(`questions.${qi}.text`)}
                 />
@@ -190,7 +195,7 @@ function QuizBuilder({ course, quiz }) {
                         {question.choices.length > 2 && (
                           <ActionIcon
                             variant="subtle"
-                            color="red.8"
+                            color="danger"
                             size={44}
                             aria-label={`Remove choice ${ci + 1}`}
                             onClick={() => {
@@ -235,7 +240,7 @@ function QuizBuilder({ course, quiz }) {
               Add question
             </Button>
             <Group>
-              <Button component={Link} to={`/teach/courses/${course.id}`} variant="default">
+              <Button component={Link} to={`/teach/courses/${course.id}/quiz`} variant="default">
                 Cancel
               </Button>
               <Button type="submit" loading={submitting}>

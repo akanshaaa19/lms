@@ -35,10 +35,9 @@ export function LoginPage() {
   })
 
   return (
-    <Page title="Log in">
-      <Paper withBorder p="xl" radius="md" maw={480}>
+    <Page title="Log in" subtitle="Welcome back. Use the email address you signed up with.">
+      <Paper withBorder p={{ base: 'lg', sm: 'xl' }} radius="lg" shadow="sm">
         <Stack gap="md">
-          <Text>Log in with the email address you signed up with.</Text>
           <ErrorSummary items={errorItems(form.errors, FIELDS)} general={general} focusKey={attempt} />
           <form onSubmit={onSubmit} noValidate>
             <Stack gap="md">
@@ -57,7 +56,7 @@ export function LoginPage() {
                 required
                 {...form.getInputProps('password')}
               />
-              <Button type="submit" loading={submitting}>
+              <Button type="submit" loading={submitting} fullWidth>
                 Log in
               </Button>
             </Stack>

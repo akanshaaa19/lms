@@ -18,8 +18,10 @@ Vite forwards `/api`, `/admin` and `/static` to Django, so the browser sees one 
 
 ## Structure
 
+- `src/theme.js`: **every colour lives here** (ink, surfaces, borders, muted text, the sage accent, status colours). Change the palette in this one file.
+
 - `src/api.js`: fetch wrapper (session cookie, CSRF header, error handling)
 - `src/auth/`: who is logged in, and route guards
-- `src/components/`: layout, page wrapper (title and focus management), error summary, badges, progress
+- `src/components/`: app shell (sidebar, mobile drawer, split login layout), page header (title, breadcrumbs, focus management), error summary, stat row, progress rings, status labels, sortable table headers, empty and loading states
 - `src/hooks/`: `useApiData` (load data with loading and error states), `useFormSubmit` (forms with server errors)
 - `src/pages/auth`, `src/pages/learner`, `src/pages/instructor`: one file per page

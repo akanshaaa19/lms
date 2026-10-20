@@ -1,4 +1,5 @@
 import { Button, Group, Paper, SimpleGrid, Stack, Text, TextInput, Textarea } from '@mantine/core'
+import { UserAvatar } from '../components/UserAvatar.jsx'
 import { useForm } from '@mantine/form'
 import { notifications } from '@mantine/notifications'
 
@@ -13,7 +14,7 @@ import { errorItems } from '../utils/errors.js'
 
 export function ProfilePage() {
   const query = useApiData('/auth/profile/')
-  return <Async query={query}>{(profile) => <ProfileForm profile={profile} />}</Async>
+  return <Async query={query} skeleton="page">{(profile) => <ProfileForm profile={profile} />}</Async>
 }
 
 function ProfileForm({ profile }) {
@@ -54,11 +55,19 @@ function ProfileForm({ profile }) {
 
   return (
     <Page title="Your profile">
-      <Paper withBorder p="xl" radius="md" maw={640}>
-        <Stack gap="md">
-          <Text>
-            Signed in as <strong>{profile.email}</strong> ({isInstructor ? 'instructor' : 'learner'}).
-          </Text>
+      <Paper withBorder p={{ base: 'lg', sm: 'xl' }} radius="lg" maw={720} shadow="xs">
+        <Stack gap="lg">
+          <Group gap="md" wrap="nowrap">
+            <UserAvatar name={`${profile.first_name} ${profile.last_name}`} size={56} />
+            <div>
+              <Text fw={600} fz="lg">
+                {profile.first_name} {profile.last_name}
+              </Text>
+              <Text c="dimmed" size="sm">
+                {profile.email} · {isInstructor ? 'Instructor' : 'Learner'}
+              </Text>
+            </div>
+          </Group>
           <ErrorSummary items={errorItems(form.errors, fields)} general={general} focusKey={attempt} />
           <form onSubmit={onSubmit} noValidate>
             <Stack gap="md">
@@ -83,8 +92,8 @@ function ProfileForm({ profile }) {
                   id="profile-bio"
                   label="About you"
                   description="Optional. Shown to learners on your courses."
-                  autosize
-                  minRows={4}
+                  rows={5}
+                  resize="vertical"
                   {...form.getInputProps('bio')}
                 />
               ) : (

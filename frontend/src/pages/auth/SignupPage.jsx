@@ -1,4 +1,4 @@
-import { Anchor, Button, Group, Paper, PasswordInput, Radio, SimpleGrid, Stack, Text, TextInput } from '@mantine/core'
+import { Anchor, Button, Paper, PasswordInput, Radio, SimpleGrid, Stack, Text, TextInput } from '@mantine/core'
 import { useForm } from '@mantine/form'
 import { notifications } from '@mantine/notifications'
 import { Link, useNavigate } from 'react-router-dom'
@@ -56,10 +56,9 @@ export function SignupPage() {
   })
 
   return (
-    <Page title="Create an account">
-      <Paper withBorder p="xl" radius="md" maw={560}>
+    <Page title="Create an account" subtitle="All fields are required.">
+      <Paper withBorder p={{ base: 'lg', sm: 'xl' }} radius="lg" shadow="sm">
         <Stack gap="md">
-          <Text>All fields are required.</Text>
           <ErrorSummary items={errorItems(form.errors, FIELDS)} general={general} focusKey={attempt} />
           <form onSubmit={onSubmit} noValidate>
             <Stack gap="md">
@@ -93,13 +92,17 @@ export function SignupPage() {
                   readers announce with each option. */}
               <Radio.Group label="I am joining as" required {...form.getInputProps('role')}>
                 <Stack gap="sm" mt="xs">
-                  <Radio id="signup-role-learner" value="learner" label="A learner — I want to take courses" />
-                  <Radio
-                    id="signup-role-instructor"
-                    value="instructor"
-                    label="An instructor — I want to create courses"
-                    description="An administrator must approve this before you can publish courses."
-                  />
+                  <Paper withBorder p="md" radius="md">
+                    <Radio id="signup-role-learner" value="learner" label="A learner — I want to take courses" />
+                  </Paper>
+                  <Paper withBorder p="md" radius="md">
+                    <Radio
+                      id="signup-role-instructor"
+                      value="instructor"
+                      label="An instructor — I want to create courses"
+                      description="An administrator must approve this before you can publish courses."
+                    />
+                  </Paper>
                 </Stack>
               </Radio.Group>
               <PasswordInput
@@ -117,11 +120,9 @@ export function SignupPage() {
                 required
                 {...form.getInputProps('confirm_password')}
               />
-              <Group>
-                <Button type="submit" loading={submitting}>
-                  Create account
-                </Button>
-              </Group>
+              <Button type="submit" loading={submitting} fullWidth>
+                Create account
+              </Button>
             </Stack>
           </form>
           <Text>

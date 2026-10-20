@@ -4,7 +4,6 @@ import { notifications } from '@mantine/notifications'
 import { Link, useNavigate, useParams } from 'react-router-dom'
 
 import { api } from '../../api.js'
-import { BackLink } from '../../components/BackLink.jsx'
 import { ErrorSummary } from '../../components/ErrorSummary.jsx'
 import { Page } from '../../components/Page.jsx'
 import { Async } from '../../components/States.jsx'
@@ -58,16 +57,23 @@ function LessonForm({ courseId, lesson }) {
     if (payload.order === '' || payload.order === null) delete payload.order // server puts it last
     if (isNew) await api.post(`/courses/${courseId}/lessons/`, payload)
     else await api.patch(`/lessons/${lesson.id}/`, payload)
-    notifications.show({ color: 'green', message: isNew ? 'Lesson added.' : 'Lesson saved.' })
-    navigate(`/teach/courses/${courseId}`)
+    notifications.show({ message: isNew ? 'Lesson added.' : 'Lesson saved.' })
+    navigate(`/teach/courses/${courseId}/lessons`)
   })
 
-  const backTo = `/teach/courses/${courseId}`
+  const backTo = `/teach/courses/${courseId}/lessons`
 
   return (
-    <Page title={isNew ? 'Add a lesson' : `Edit ${lesson.title}`} heading={isNew ? 'Add a lesson' : 'Edit lesson'}>
-      <BackLink to={backTo}>Back to {lesson?.course_title ?? 'the course'}</BackLink>
-      <Paper withBorder p="xl" radius="md" maw={820}>
+    <Page
+      title={isNew ? 'Add a lesson' : `Edit ${lesson.title}`}
+      heading={isNew ? 'Add a lesson' : 'Edit lesson'}
+      breadcrumbs={[
+        { label: 'Your courses', to: '/teach' },
+        { label: lesson?.course_title ?? 'Course lessons', to: backTo },
+        { label: isNew ? 'Add a lesson' : 'Edit lesson' },
+      ]}
+    >
+      <Paper withBorder p={{ base: 'lg', sm: 'xl' }} radius="lg" maw={820} shadow="xs">
         <Stack gap="md">
           <ErrorSummary items={errorItems(form.errors, FIELDS)} general={general} focusKey={attempt} />
           <form onSubmit={onSubmit} noValidate>
@@ -77,8 +83,8 @@ function LessonForm({ courseId, lesson }) {
                 id="lesson-content"
                 label="Content"
                 description="Plain text. Leave a blank line between paragraphs."
-                autosize
-                minRows={10}
+                rows={14}
+                resize="vertical"
                 required
                 {...form.getInputProps('content')}
               />

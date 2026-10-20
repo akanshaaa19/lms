@@ -1,14 +1,25 @@
-import { Progress, Stack, Text } from '@mantine/core'
+import { Group, Stack, Text } from '@mantine/core'
 
 import { progressText } from '../utils/format.js'
+import { ProgressRing } from './ProgressRing.jsx'
 
-// The text is the accessible version; the bar is a visual extra, so it's
-// hidden from screen readers to avoid reading the same thing twice.
-export function ProgressSummary({ completed, total, percent }) {
+// The ring is decorative; the sentence beside it carries the information.
+export function ProgressSummary({ completed, total, percent, size = 64 }) {
   return (
-    <Stack gap={6}>
-      <Text fw={600}>{progressText(completed, total, percent)}</Text>
-      <Progress value={percent} size="lg" radius="xl" aria-hidden="true" />
-    </Stack>
+    <Group gap="md" wrap="nowrap">
+      <ProgressRing
+        value={percent}
+        size={size}
+        thickness={Math.round(size / 9)}
+        label={
+          <Text ta="center" fw={700} size={size >= 64 ? 'sm' : 'xs'} aria-hidden="true">
+            {percent}%
+          </Text>
+        }
+      />
+      <Stack gap={2}>
+        <Text fw={600}>{progressText(completed, total, percent)}</Text>
+      </Stack>
+    </Group>
   )
 }
