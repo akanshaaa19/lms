@@ -1,5 +1,7 @@
 from django.contrib.auth.models import AbstractUser, BaseUserManager
+from django.core.exceptions import ValidationError
 from django.db import models
+from django.utils import timezone
 
 
 class UserManager(BaseUserManager):
@@ -46,3 +48,56 @@ class User(AbstractUser):
 
     def __str__(self):
         return self.get_full_name() or self.email
+
+    # A reverse one-to-one (user.learner_profile) raises an error when the
+    # profile doesn't exist; hasattr() turns that into True/False.
+    @property
+    def is_learner(self):
+        return hasattr(self, "learner_profile")
+
+    @property
+    def is_instructor(self):
+        """True only for instructors an admin has approved."""
+        return hasattr(self, "instructor_profile") and self.instructor_profile.is_approved
+
+    @property
+    def is_pending_instructor(self):
+        return hasattr(self, "instructor_profile") and not self.instructor_profile.is_approved
+
+
+class InstructorProfile(models.Model):
+    user = models.OneToOneField(
+        User, on_delete=models.CASCADE, related_name="instructor_profile"
+    )
+    bio = models.TextField(blank=True)
+    is_approved = models.BooleanField(default=False)
+    approved_at = models.DateTimeField(null=True, blank=True)
+
+    def __str__(self):
+        return str(self.user)
+
+    def clean(self):
+        # One role per user (decision A5).
+        if LearnerProfile.objects.filter(user_id=self.user_id).exists():
+            raise ValidationError("This user is already a learner. A user can have only one role.")
+
+    def approve(self):
+        self.is_approved = True
+        self.approved_at = timezone.now()
+        self.save(update_fields=["is_approved", "approved_at"])
+
+
+class LearnerProfile(models.Model):
+    user = models.OneToOneField(
+        User, on_delete=models.CASCADE, related_name="learner_profile"
+    )
+    designation = models.CharField(max_length=100, blank=True, help_text="For example, Court clerk")
+    department = models.CharField(max_length=100, blank=True, help_text="For example, District Court")
+
+    def __str__(self):
+        return str(self.user)
+
+    def clean(self):
+        # One role per user (decision A5).
+        if InstructorProfile.objects.filter(user_id=self.user_id).exists():
+            raise ValidationError("This user is already an instructor. A user can have only one role.")

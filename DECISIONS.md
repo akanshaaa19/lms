@@ -12,6 +12,7 @@ Every design decision we make, why we made it, and what we gave up. This feeds i
 | P2 | Claude writes and explains each step. Akansha runs the commands, checks the app and asks questions before we move on. | Akansha is new to Django and must explain and extend the code in the pair-coding round. |
 | P3 | Prefer explicit, readable code over clever Django shortcuts. | Every line has to be explainable in the interview. |
 | P4 | Accessibility is a baseline, not a stretch goal: real labels, keyboard support, contrast, clear messages after actions. | The team works in accessible design; all staff must be able to use the app. |
+| P5 | SQLite database (`db.sqlite3`, not committed). Django 5.2 LTS. | Zero setup for reviewers, and the brief allows it. It supports every constraint we need. For a real deployment we'd switch to PostgreSQL by changing only `DATABASES`. |
 
 ## Scope
 
@@ -45,6 +46,8 @@ Every design decision we make, why we made it, and what we gave up. This feeds i
 | C3 | Soft delete for courses: `deleted_at` (empty while live) and an optional `deletion_reason`. Nothing is removed from the database. | Legal content goes out of date, so it must be removable, but training records must survive. |
 | C4 | A learner enrolled in a deleted course still sees it on "My courses", marked "Removed by the instructor on DATE", with the reason, their progress and their best score. Lessons and the quiz are locked, and their URLs show an explanation page. | The record of training stays, and out-of-date legal content can't be used. |
 | C5 | Deleted courses are hidden from the catalogue and the instructor's views. Admins can restore them in the Django admin. | Removal is reversible. |
+| C7 | `on_delete=PROTECT` on `Course.instructor` and `Enrollment.course`. Lessons use `CASCADE` (they belong to their course). | A hard delete in the admin can't silently wipe learners' training records. Soft delete is the normal path. |
+| C8 | Role checks live on `User` as properties: `is_learner`, `is_instructor` (approved only), `is_pending_instructor`. | One place to ask "what can this person do?", reused by views and templates. |
 | C6 | Deleted courses are filtered out with an explicit `Course.objects.active()` in each view, not by overriding the default manager. | Easier to see in the code and to explain. Overriding the default manager has subtle side effects. |
 
 ## Enrolment and progress

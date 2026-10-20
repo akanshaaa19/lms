@@ -39,6 +39,7 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     # Our apps
     'accounts',
+    'courses',
 ]
 
 # Use our own User model (email login) instead of Django's built-in one.
