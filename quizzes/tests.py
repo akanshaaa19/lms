@@ -88,6 +88,21 @@ class QuizApiTests(TestCase):
         self.assertEqual(response.json()["percentage"], 75)
         self.assertTrue(response.json()["passed"])
 
+    def test_failed_attempt_does_not_reveal_correct_answers(self):
+        enroll(self.learner, self.course)
+        blank = self.client.post(f"/api/quizzes/{self.quiz.id}/attempts/", {"answers": {}}, format="json").json()
+        self.assertFalse(blank["passed"])
+        self.assertFalse(blank["answers_revealed"])
+        self.assertTrue(all(row["correct_choice_id"] is None for row in blank["answers"]))
+
+    def test_correct_answers_are_revealed_once_passed(self):
+        enroll(self.learner, self.course)
+        result = self.client.post(
+            f"/api/quizzes/{self.quiz.id}/attempts/", {"answers": answers(self.quiz, 3)}, format="json"
+        ).json()
+        self.assertTrue(result["answers_revealed"])
+        self.assertTrue(all(row["correct_choice_id"] is not None for row in result["answers"]))
+
     def test_quiz_builder_requires_exactly_one_correct_choice(self):
         client = APIClient()
         client.force_authenticate(self.course.instructor.user)

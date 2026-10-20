@@ -1,5 +1,6 @@
 from unittest import mock
 
+from django.core.cache import cache
 from django.test import TestCase
 from rest_framework.test import APIClient
 
@@ -9,6 +10,9 @@ from courses.testing import PASSWORD, make_learner
 
 
 class SignUpAndLoginTests(TestCase):
+    def setUp(self):
+        cache.clear()  # the login rate limit is counted in the cache
+
     def signup(self, client, **overrides):
         data = {
             "first_name": "Asha", "last_name": "Menon", "email": "asha@example.com",
@@ -71,3 +75,11 @@ class SignUpAndLoginTests(TestCase):
             "/api/auth/login/", {"email": "lena@example.com", "password": PASSWORD}, HTTP_X_CSRFTOKEN=token
         )
         self.assertEqual(response.status_code, 200)
+
+    def test_login_is_rate_limited(self):
+        statuses = [
+            APIClient().post("/api/auth/login/", {"email": "x@example.com", "password": "wrong"}).status_code
+            for _ in range(21)
+        ]
+        self.assertEqual(statuses[:20], [400] * 20)
+        self.assertEqual(statuses[20], 429)

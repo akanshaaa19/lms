@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useMemo, useState } from 'react'
 
-import { api, loadCsrfToken } from '../api.js'
+import { api, loadCsrfToken, onAuthError } from '../api.js'
 import { AuthContext } from './context.js'
 
 // Holds the logged-in user for the whole app. The real check is always on
@@ -43,9 +43,19 @@ export function AuthProvider({ children }) {
   }, [])
 
   const logout = useCallback(async () => {
-    await api.post('/auth/logout/')
-    setUser(null)
+    try {
+      await api.post('/auth/logout/')
+    } finally {
+      // Clear the screen even if the request failed: on a shared computer,
+      // the next person must not see this user's data.
+      setUser(null)
+    }
   }, [])
+
+  // A 401/403 can mean the session expired or the role changed (e.g. an
+  // instructor was revoked). Re-check who is logged in, so the route guards
+  // send the user to the right place instead of leaving a stale screen.
+  useEffect(() => onAuthError(() => refresh().catch(() => {})), [refresh])
 
   const value = useMemo(
     () => ({ user, ready, startupError, login, signup, logout, refresh }),

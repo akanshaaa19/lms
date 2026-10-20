@@ -1,6 +1,8 @@
 import os
 from pathlib import Path
 
+from django.core.exceptions import ImproperlyConfigured
+
 BASE_DIR = Path(__file__).resolve().parent.parent
 
 
@@ -11,11 +13,19 @@ def env_list(name, default):
 
 # Local development works with no environment variables set. In production,
 # set DJANGO_SECRET_KEY, DJANGO_DEBUG=false and the host/origin lists below.
-SECRET_KEY = os.environ.get(
-    "DJANGO_SECRET_KEY", "django-insecure-jyhhr_&0*(3#9i^7!6#2)=o57x9!c0hcqz0f4aat4)=5rv*b#e"
-)
+# A misconfigured production server refuses to start rather than running
+# with debug pages or a publicly known key.
 DEBUG = os.environ.get("DJANGO_DEBUG", "true").lower() == "true"
 ALLOWED_HOSTS = env_list("DJANGO_ALLOWED_HOSTS", "localhost,127.0.0.1")
+
+if DEBUG and set(ALLOWED_HOSTS) - {"localhost", "127.0.0.1"}:
+    raise ImproperlyConfigured("DEBUG is on but real hosts are configured. Set DJANGO_DEBUG=false.")
+
+SECRET_KEY = os.environ.get("DJANGO_SECRET_KEY")
+if not SECRET_KEY:
+    if not DEBUG:
+        raise ImproperlyConfigured("Set DJANGO_SECRET_KEY when DEBUG is off.")
+    SECRET_KEY = "django-insecure-local-development-only"
 
 INSTALLED_APPS = [
     'django.contrib.admin',
@@ -115,6 +125,11 @@ REST_FRAMEWORK = {
     'DEFAULT_PERMISSION_CLASSES': [
         'rest_framework.permissions.IsAuthenticated',
     ],
+    # Login and sign-up are rate-limited per client (see accounts/views.py),
+    # generous enough for a whole office sharing one IP address.
+    'DEFAULT_THROTTLE_RATES': {
+        'auth': '20/minute',
+    },
 }
 
 # Where the React app is served from. It may call Django directly
@@ -136,6 +151,8 @@ if not DEBUG:
     # Hosts like Render end HTTPS at their proxy and forward plain HTTP;
     # this header tells Django the original request was HTTPS.
     SECURE_PROXY_SSL_HEADER = ("HTTP_X_FORWARDED_PROTO", "https")
+    SECURE_SSL_REDIRECT = True
+    SECURE_HSTS_SECONDS = 60 * 60 * 24  # browsers use HTTPS only, for a day
 if os.environ.get("DJANGO_CROSS_SITE_COOKIES", "false").lower() == "true":
     SESSION_COOKIE_SAMESITE = "None"
     CSRF_COOKIE_SAMESITE = "None"

@@ -110,12 +110,18 @@ class AttemptSummarySerializer(serializers.ModelSerializer):
 
 class AttemptResultSerializer(AttemptSummarySerializer):
     answers = serializers.SerializerMethodField()
+    answers_revealed = serializers.SerializerMethodField()
 
     class Meta(AttemptSummarySerializer.Meta):
-        fields = AttemptSummarySerializer.Meta.fields + ["answers"]
+        fields = AttemptSummarySerializer.Meta.fields + ["answers_revealed", "answers"]
+
+    def get_answers_revealed(self, attempt):
+        if not hasattr(self, "_revealed"):
+            self._revealed = attempt.enrollment.quiz_attempts.filter(quiz=attempt.quiz, passed=True).exists()
+        return self._revealed
 
     def get_answers(self, attempt):
-        # Shown after submitting, so the learner can see what to revise.
+        revealed = self.get_answers_revealed(attempt)
         chosen = {a.question_id: a.selected_choice for a in attempt.answers.select_related("selected_choice")}
         rows = []
         for question in attempt.quiz.questions.prefetch_related("choices"):
@@ -126,8 +132,8 @@ class AttemptResultSerializer(AttemptSummarySerializer):
                 "question_text": question.text,
                 "selected_choice_id": selected.id if selected else None,
                 "selected_choice_text": selected.text if selected else None,
-                "correct_choice_id": correct.id if correct else None,
-                "correct_choice_text": correct.text if correct else None,
+                "correct_choice_id": correct.id if revealed and correct else None,
+                "correct_choice_text": correct.text if revealed and correct else None,
                 "is_correct": bool(selected and selected.is_correct),
             })
         return rows

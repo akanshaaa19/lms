@@ -12,6 +12,14 @@ const crossSite = API_URL !== ''
 // here, so we keep the token Django returns from /auth/csrf/ instead.
 let csrfToken = null
 
+let authErrorHandler = null
+export function onAuthError(handler) {
+  authErrorHandler = handler
+  return () => {
+    if (authErrorHandler === handler) authErrorHandler = null
+  }
+}
+
 export async function loadCsrfToken() {
   const data = await request('GET', '/auth/csrf/')
   csrfToken = data?.csrfToken ?? null
@@ -81,7 +89,10 @@ async function request(method, path, body) {
       data = null
     }
   }
-  if (!response.ok) throw new ApiError(response.status, data)
+  if (!response.ok) {
+    if ((response.status === 401 || response.status === 403) && !path.startsWith('/auth/')) authErrorHandler?.()
+    throw new ApiError(response.status, data)
+  }
   // Django issues a new CSRF token on login, sign-up and logout.
   if (method !== 'GET' && path.startsWith('/auth/') && path !== '/auth/profile/') await loadCsrfToken()
   return data

@@ -5,6 +5,7 @@ from django.views.decorators.csrf import csrf_protect, ensure_csrf_cookie
 from rest_framework import status
 from rest_framework.permissions import AllowAny
 from rest_framework.response import Response
+from rest_framework.throttling import ScopedRateThrottle
 from rest_framework.views import APIView
 
 from .serializers import LoginSerializer, ProfileSerializer, SignUpSerializer, UserSerializer
@@ -40,6 +41,8 @@ class MeView(APIView):
 @method_decorator(csrf_protect, name="dispatch")
 class SignUpView(APIView):
     permission_classes = [AllowAny]
+    throttle_classes = [ScopedRateThrottle]
+    throttle_scope = "auth"
 
     def post(self, request):
         serializer = SignUpSerializer(data=request.data)
@@ -52,6 +55,9 @@ class SignUpView(APIView):
 @method_decorator(csrf_protect, name="dispatch")
 class LoginView(APIView):
     permission_classes = [AllowAny]
+    # Slows down password guessing.
+    throttle_classes = [ScopedRateThrottle]
+    throttle_scope = "auth"
 
     def post(self, request):
         serializer = LoginSerializer(data=request.data)

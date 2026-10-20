@@ -201,6 +201,9 @@ function QuizResult({ result, passMark, onTryAgain, courseId }) {
         <Title order={2} id="review-heading">
           Your answers
         </Title>
+        {!result.answers_revealed && (
+          <Text c="dimmed">Correct answers are shown once you pass. Review the lessons and try again.</Text>
+        )}
         <div className="surface-card">
           <ol className="lesson-list">
             {result.answers.map((answer, index) => (
@@ -218,7 +221,9 @@ function QuizResult({ result, passMark, onTryAgain, courseId }) {
                     {answer.is_correct ? 'Correct' : 'Incorrect'}
                   </Text>
                   <Text size="sm">Your answer: {answer.selected_choice_text ?? 'Not answered'}</Text>
-                  {!answer.is_correct && <Text size="sm">Correct answer: {answer.correct_choice_text}</Text>}
+                  {!answer.is_correct && answer.correct_choice_text && (
+                    <Text size="sm">Correct answer: {answer.correct_choice_text}</Text>
+                  )}
                 </Stack>
               </li>
             ))}

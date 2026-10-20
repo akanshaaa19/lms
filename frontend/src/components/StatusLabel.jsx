@@ -17,9 +17,14 @@ const STATUSES = {
   admin: { label: 'Admin', tone: 'neutral' },
 }
 
+// Unknown values get a neutral label instead of crashing the page.
+function statusFor(status) {
+  return STATUSES[status] ?? { label: status ? String(status) : 'Unknown', tone: 'neutral' }
+}
+
 // A coloured dot plus a text label: the colour is never the only signal.
 export function StatusLabel({ status, label }) {
-  const { label: defaultLabel, tone } = STATUSES[status]
+  const { label: defaultLabel, tone } = statusFor(status)
   return (
     <Group gap={8} wrap="nowrap" component="span">
       <span className="status-dot" style={{ background: `var(--lms-${tone}-dot)` }} aria-hidden="true" />
@@ -31,7 +36,7 @@ export function StatusLabel({ status, label }) {
 }
 
 export function StatusPill({ status, label }) {
-  const { tone } = STATUSES[status]
+  const { tone } = statusFor(status)
   return (
     <span
       style={{

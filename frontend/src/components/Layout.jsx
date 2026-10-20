@@ -18,6 +18,7 @@ import { NavLink, Outlet, useLocation, useNavigate } from 'react-router-dom'
 
 import { API_URL } from '../api.js'
 import { useAuth } from '../auth/context.js'
+import { ErrorBoundary } from './ErrorBoundary.jsx'
 import { Logo } from './Logo.jsx'
 import { UserAvatar } from './UserAvatar.jsx'
 
@@ -98,8 +99,13 @@ function SidebarContent({ onNavigate }) {
       await logout()
       notifications.show({ message: 'You have logged out.' })
       navigate('/login')
-    } catch (error) {
-      notifications.show({ color: 'danger', title: 'Could not log out', message: error.message })
+    } catch {
+      notifications.show({
+        color: 'danger',
+        title: 'Logged out on this screen only',
+        message: "We couldn't reach the server. On a shared computer, close the browser to be sure.",
+      })
+      navigate('/login')
     }
   }
 
@@ -207,7 +213,10 @@ export function AppLayout() {
               {/* The key remounts the page when the URL changes, so each
                   page moves focus to its own heading (see Page.jsx). */}
               <div key={pageKey(location.pathname)}>
-                <Outlet />
+                {/* Keyed with the page, so navigating away clears a crashed page. */}
+                <ErrorBoundary>
+                  <Outlet />
+                </ErrorBoundary>
               </div>
             </main>
           </div>
@@ -248,7 +257,9 @@ export function AuthLayout() {
               <Logo />
             </Box>
             <div key={location.pathname}>
-              <Outlet />
+              <ErrorBoundary>
+                <Outlet />
+              </ErrorBoundary>
             </div>
           </Box>
         </main>
