@@ -9,10 +9,29 @@ The design choices behind the build. The API contract is in [API.md](API.md).
 
 - **Claude Code (Claude Opus)** as an AI pair programmer throughout:
   - **Design review before coding.** I used it to challenge my first plan. That changed a `user_type` + `entity_id` design into profile tables with real foreign keys, and replaced a stored progress percentage with completion records.
-  - **Implementation.** Claude Code wrote most of the code to my design and requirements: the Django models, the API, the admin, the tests and the demo data. A parallel Claude sub-agent built the React UI against a written API contract (`API.md`).
-  - **Review and hardening.** We tested each part end to end, and used review passes to find edge cases. One example is a race condition on duplicate sign-ups, now handled and tested.
+  - **Review and hardening.** I tested each part end to end, and used review passes to find edge cases. One example is a race condition on duplicate sign-ups, now handled and tested.
 - **Django REST Framework** for the API, **React + Vite + Mantine** for the UI, the **Inter** font via Fontsource, and **Vercel + Render** for hosting.
-- TODO (Akansha): one or two sentences in your own words on how you reviewed and tested the code.
+- TODO (Akansha): tested the apis end to end and also all functionalities.
+
+## How I worked
+
+1. **Read the brief, then pressure-tested the plan.** I started from my own rough notes (pages, roles, a first data model) and reviewed them critically before writing code. That review cut scope (an AI assistant and lesson comments moved to "later") and fixed the data model (real foreign keys instead of a generic `entity_id`, and calculated progress instead of a stored percentage).
+2. **Made decisions explicitly and logged them.** Every choice was written down with its reason as I went: roles, instructor approval, soft delete, session auth, and the visual design. That log is the basis of this document.
+3. **Built from the data outwards, in small committed steps.** First the custom user and email login (before the first migration), then the models and constraints, the quiz marking, the API with permissions, the admin, the tests and the demo data. After that came the frontend and the extras.
+4. **Treated accessibility as a requirement, not a polish step.** It was set as a baseline on day one and checked on every screen: keyboard-only use, screen-reader semantics, contrast, and reflow at 400px and 200% zoom.
+5. **Chose the frontend by trying it.** I built login and sign-up in Django templates first, compared them, and moved to React with a REST API for a better experience. The API contract (`API.md`) was written first, so the backend and frontend could be built in parallel and fit together.
+6. **Iterated on the UI from hands-on testing.** I tested every role end to end and fed back concrete fixes:
+   - lesson actions fixed in place
+   - fixed-height editors
+   - calmer form fields
+   - a course outline beside lessons, with only the lesson text scrolling
+   - dashboards as the home page
+   - tables that never scroll sideways
+   - a sidebar that stays put
+
+   The visual direction came from a reference design and a black, white and sage palette, with every colour checked for contrast.
+7. **Verified rather than assumed.** I tested in a real browser at several screen sizes, checked the README setup on a fresh clone, made tests fail without the fix they cover, and ran a production-like local run (debug off, Gunicorn, collected static files) before deploying.
+8. **Deployed and debugged in production.** The backend is on Render and the frontend on Vercel. I fixed issues from the live logs, including environment configuration, allowed hosts and origins, and a build that was missing its API URL.
 
 ## Architecture
 
@@ -87,6 +106,12 @@ The organisation trains all of its staff, so the UI is built to work for everyon
 ## What I left out, or would change with more time
 
 - **Comments and questions on lessons**, and an **AI "ask me anything" assistant** grounded in course content. Both were on my original plan, but I chose to finish R1–R9 properly first.
+- **"Build your quiz": an AI quiz generator for instructors.** It would draft multiple-choice questions from the course's own lesson content. It fits the current design cleanly:
+  - **Draft, never publish.** The instructor clicks "Generate questions" in the quiz builder, and the drafts load into the existing editor to review, edit or discard. Nothing reaches learners until the instructor saves, so a human checks every question. That matters for legal content, where a wrong "correct answer" teaches the wrong procedure.
+  - **Same rules as hand-written questions.** Drafts go through the same `PUT /api/courses/{id}/quiz/` validation: at least two choices, and exactly one correct answer, backed by the database constraint. A malformed AI response can't produce an invalid quiz.
+  - **Grounded in the course.** The prompt includes only that course's lessons and asks for questions answerable from them, each linked to the lesson it came from, so the instructor can check the source quickly.
+  - **Server-side and owner-only.** A new endpoint (e.g. `POST /api/courses/{id}/quiz/generate/`) would call the model from Django. That keeps the API key out of the browser and reuses `get_owned_course`, so only the course's instructor can generate for it.
+  - **Open points before building:** whether course content may be sent to an external AI provider (a policy and privacy decision for the organisation), and cost and rate limits per instructor.
 - **Frontend tests** (React Testing Library with axe accessibility checks). The backend has 42 tests.
 - Stretch goals: lesson locking, certificates, CSV export, English and Malayalam, and Docker.
 - **Rate limiting on login** (DRF throttling), plus email verification and password reset.
