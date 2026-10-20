@@ -92,3 +92,13 @@ Every design decision we make, why we made it, and what we gave up. This feeds i
 |---|----------|-----|
 | D1 | `python manage.py seed_demo` creates an admin, an approved instructor, two learners, one published course (4 lessons, 4-question quiz) and one draft course. Asha has partial progress and a failed attempt, and Ravi hasn't enrolled. It's safe to run again. | The demo shows every state: progress, a failed attempt, an unenrolled learner and a hidden draft. |
 | D2 | Tests use DRF's `APIClient` against real endpoints, plus direct tests of `grade_quiz()` and the database constraint. | Tests permissions where they're actually enforced, on the server. |
+
+## Visual design
+
+| # | Decision | Why |
+|---|----------|-----|
+| V1 | Layout follows the user's reference (a modern LMS dashboard): sidebar navigation, a large page title with tabs, a KPI row with rings, and a learners table with avatars, status and progress rings. | The user asked for a modern UI rather than a skeleton. |
+| V2 | Every sidebar item keeps a visible text label. No icon-only rail. | Icon-only navigation is harder to understand and to use. |
+| V3 | Palette is black and white with a sage-green accent. Ink `#111111` for text and primary buttons. Sage (`#9CAF88` / `#7D9471`) for decoration only: rings, pills, tiles. Dark sage `#4F6B47` (6.0:1) where sage carries text. | White text on sage is only 2.4:1, which fails AA. So the accent decorates, and the ink and dark sage carry meaning. |
+| V4 | Status is always a dot plus a text label. Rings always show a number. Content types are told apart by icon, not colour. | Colour is never the only signal. |
+| V5 | Every colour token lives in `frontend/src/theme.js`. | A palette change touches one file. |
