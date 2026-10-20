@@ -6,11 +6,13 @@ import {
   IconLogin,
   IconLogout,
   IconChalkboard,
+  IconExternalLink,
   IconLayoutDashboard,
   IconSchool,
   IconSettings,
   IconUserCircle,
   IconUserPlus,
+  IconUsers,
 } from '@tabler/icons-react'
 import { NavLink, Outlet, useLocation, useNavigate } from 'react-router-dom'
 
@@ -41,7 +43,25 @@ const NAV_SECTIONS = {
     },
     { label: 'Account', items: [{ to: '/profile', label: 'Profile', icon: IconUserCircle }] },
   ],
-  admin: [{ label: 'Administration', items: [{ to: '/admin-home', label: 'Admin', icon: IconSettings }] }],
+  admin: [
+    {
+      label: 'Administration',
+      items: [
+        { to: '/manage', label: 'Overview', icon: IconLayoutDashboard, end: true },
+        { to: '/manage/instructors', label: 'Instructors', icon: IconChalkboard },
+        { to: '/manage/users', label: 'Users', icon: IconUsers },
+        { to: '/manage/courses', label: 'Courses', icon: IconBooks },
+      ],
+    },
+    {
+      label: 'Account',
+      items: [
+        { to: '/profile', label: 'Profile', icon: IconUserCircle },
+        // The Django admin is a separate server-rendered site, so it's a plain link.
+        { href: '/admin/', label: 'Open Django admin', icon: IconSettings, external: true },
+      ],
+    },
+  ],
   pending_instructor: [],
   guest: [
     {
@@ -96,13 +116,22 @@ function SidebarContent({ onNavigate }) {
                   {section.label}
                 </p>
                 <ul className="lesson-list" aria-labelledby={`nav-${section.label}`}>
-                  {section.items.map(({ to, label, icon: Icon, end }) => (
-                    <li key={to}>
-                      {/* NavLink sets aria-current="page" on the current page's link. */}
-                      <NavLink to={to} end={end} className="nav-item" onClick={onNavigate}>
-                        <Icon size={20} stroke={1.8} aria-hidden="true" />
-                        {label}
-                      </NavLink>
+                  {section.items.map(({ to, href, label, icon: Icon, end, external }) => (
+                    <li key={to ?? href}>
+                      {external ? (
+                        <a href={href} target="_blank" rel="noopener noreferrer" className="nav-item">
+                          <Icon size={20} stroke={1.8} aria-hidden="true" />
+                          {label}
+                          <IconExternalLink size={16} stroke={1.8} aria-hidden="true" style={{ marginLeft: 'auto' }} />
+                          <span className="visually-hidden"> (opens in a new tab)</span>
+                        </a>
+                      ) : (
+                        // NavLink sets aria-current="page" on the current page's link.
+                        <NavLink to={to} end={end} className="nav-item" onClick={onNavigate}>
+                          <Icon size={20} stroke={1.8} aria-hidden="true" />
+                          {label}
+                        </NavLink>
+                      )}
                     </li>
                   ))}
                 </ul>
@@ -187,7 +216,6 @@ export function AppLayout() {
   )
 }
 
-// Split layout for log in and sign up: brand panel + form.
 export function AuthLayout() {
   const location = useLocation()
   return (

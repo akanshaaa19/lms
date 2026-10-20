@@ -20,15 +20,15 @@ export function ProfilePage() {
 function ProfileForm({ profile }) {
   const { refresh } = useAuth()
   const isInstructor = profile.role === 'instructor'
+  const isLearner = profile.role === 'learner'
+  const roleLabel = { instructor: 'Instructor', learner: 'Learner', admin: 'Administrator' }[profile.role] ?? ''
 
+  const names = { first_name: profile.first_name, last_name: profile.last_name }
   const initialValues = isInstructor
-    ? { first_name: profile.first_name, last_name: profile.last_name, bio: profile.bio ?? '' }
-    : {
-        first_name: profile.first_name,
-        last_name: profile.last_name,
-        designation: profile.designation ?? '',
-        department: profile.department ?? '',
-      }
+    ? { ...names, bio: profile.bio ?? '' }
+    : isLearner
+      ? { ...names, designation: profile.designation ?? '', department: profile.department ?? '' }
+      : names
 
   const form = useForm({
     initialValues,
@@ -64,7 +64,7 @@ function ProfileForm({ profile }) {
                 {profile.first_name} {profile.last_name}
               </Text>
               <Text c="dimmed" size="sm">
-                {profile.email} · {isInstructor ? 'Instructor' : 'Learner'}
+                {profile.email} · {roleLabel}
               </Text>
             </div>
           </Group>
@@ -96,7 +96,7 @@ function ProfileForm({ profile }) {
                   resize="vertical"
                   {...form.getInputProps('bio')}
                 />
-              ) : (
+              ) : isLearner ? (
                 <SimpleGrid cols={{ base: 1, sm: 2 }}>
                   <TextInput
                     id="profile-designation"
@@ -112,7 +112,7 @@ function ProfileForm({ profile }) {
                     {...form.getInputProps('department')}
                   />
                 </SimpleGrid>
-              )}
+              ) : null}
               <Group>
                 <Button type="submit" loading={submitting}>
                   Save profile

@@ -8,6 +8,13 @@ const STATUSES = {
   not_passed: { label: 'Not passed yet', tone: 'danger' },
   published: { label: 'Published', tone: 'success' },
   draft: { label: 'Draft', tone: 'neutral' },
+  removed: { label: 'Removed', tone: 'danger' },
+  pending: { label: 'Pending', tone: 'warning' },
+  approved: { label: 'Approved', tone: 'success' },
+  learner: { label: 'Learner', tone: 'neutral' },
+  instructor: { label: 'Instructor', tone: 'success' },
+  pending_instructor: { label: 'Pending instructor', tone: 'warning' },
+  admin: { label: 'Admin', tone: 'neutral' },
 }
 
 // A coloured dot plus a text label: the colour is never the only signal.
@@ -23,7 +30,6 @@ export function StatusLabel({ status, label }) {
   )
 }
 
-// A pill version for headers and cards.
 export function StatusPill({ status, label }) {
   const { tone } = STATUSES[status]
   return (

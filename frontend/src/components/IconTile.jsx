@@ -1,6 +1,4 @@
-// A small rounded tile holding a content-type icon (course, lesson, quiz…).
-// Types are told apart by the icon, not by colour. Decorative: the text
-// next to it always says what it is.
+// Decorative: types differ by icon, not colour, and the text beside it says what it is.
 export function IconTile({ icon: Icon, size = 40 }) {
   return (
     <span

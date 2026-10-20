@@ -58,7 +58,6 @@ main:focus-visible {
   min-height: 44px;
 }
 
-/* ---------- App shell ---------- */
 .shell {
   min-height: 100vh;
   display: flex;
@@ -160,7 +159,6 @@ main:focus-visible {
   color: var(--lms-sage-7);
 }
 
-/* ---------- Building blocks ---------- */
 .surface-card {
   background: var(--lms-surface);
   border: 1px solid var(--lms-border);
@@ -227,13 +225,11 @@ main:focus-visible {
   color: var(--lms-ink);
 }
 
-/* Toolbar search: borderless, with an icon. */
 .toolbar-search input {
   border: 0;
   background: transparent;
 }
 
-/* Tables */
 .table-card {
   border: 1px solid var(--lms-border);
   border-radius: 12px;
@@ -317,7 +313,6 @@ main:focus-visible {
   color: var(--lms-sage-7);
 }
 
-/* Lesson reader */
 .reader {
   max-width: 70ch;
 }
@@ -418,7 +413,6 @@ main:focus-visible {
   margin: 10px 0 0;
 }
 
-/* Auth split layout */
 .auth-shell {
   min-height: 100vh;
   display: grid;
@@ -669,7 +663,6 @@ main:focus-visible {
   }
 }
 
-/* ---------- Dashboard ---------- */
 .dashboard-grid {
   display: grid;
   grid-template-columns: minmax(0, 1fr);
@@ -775,6 +768,47 @@ main:focus-visible {
     display: block;
   }
   .courses-list-view {
+    display: none;
+  }
+}
+
+/* Admin tables: same container-query idea as the dashboard courses card.
+   A full table when the card is wide enough, otherwise a list; never a
+   sideways scroll. */
+.rt {
+  container-type: inline-size;
+}
+.rt-table {
+  display: none;
+}
+.rt-table table {
+  width: 100%;
+}
+.rt-table thead th:first-child,
+.rt-table tbody th:first-child {
+  padding-left: 20px;
+}
+.rt-table thead th:last-child,
+.rt-table tbody td:last-child {
+  padding-right: 20px;
+}
+.rt-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+.rt-list > li {
+  padding: 16px 20px;
+  border-top: 1px solid var(--lms-border);
+}
+.rt-list > li:first-child {
+  border-top: 0;
+}
+@container (min-width: 760px) {
+  .rt-table {
+    display: block;
+  }
+  .rt-list {
     display: none;
   }
 }

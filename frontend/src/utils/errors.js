@@ -19,7 +19,6 @@ function firstMessage(value) {
   return null
 }
 
-// Splits server errors into ones that belong to a form field and the rest.
 export function splitServerErrors(error, fieldNames) {
   const fieldErrors = {}
   const general = []
@@ -40,8 +39,7 @@ export function splitServerErrors(error, fieldNames) {
   return { fieldErrors, general }
 }
 
-// Builds summary items from a Mantine form's errors, in the order the
-// fields appear on the page. `fields` is [{ name, id }].
+// In the order the fields appear on the page. `fields` is [{ name, id }].
 export function errorItems(errors, fields) {
   return fields
     .filter((field) => errors[field.name])

@@ -6,7 +6,6 @@ export function useAuth() {
   return useContext(AuthContext)
 }
 
-// Where each kind of user lands after logging in.
 export function homePathFor(role) {
   switch (role) {
     case 'learner':
@@ -15,7 +14,7 @@ export function homePathFor(role) {
     case 'pending_instructor':
       return '/pending'
     case 'admin':
-      return '/admin-home'
+      return '/manage'
     default:
       return '/login'
   }

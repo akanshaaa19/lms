@@ -17,7 +17,6 @@ const FIELDS = [
   { name: 'status', id: 'course-status-draft' },
 ]
 
-// One component for both "new course" and "edit course".
 export function CourseFormPage() {
   const { courseId } = useParams()
   if (!courseId) return <CourseForm course={null} />

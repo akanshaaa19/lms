@@ -101,8 +101,6 @@ function ManageCourse({ course, tab, onChange, reload }) {
   )
 }
 
-/* ---------------- Overview ---------------- */
-
 function OverviewTab({ course, onChange }) {
   const [publishing, setPublishing] = useState(false)
   const isPublished = course.status === 'published'
@@ -234,8 +232,6 @@ function DeleteSection({ course }) {
   )
 }
 
-/* ---------------- Lessons ---------------- */
-
 function LessonsTab({ course, reload }) {
   const [toDelete, setToDelete] = useState(null)
   const [deleting, setDeleting] = useState(false)
@@ -325,8 +321,6 @@ function LessonsTab({ course, reload }) {
   )
 }
 
-/* ---------------- Quiz ---------------- */
-
 function QuizTab({ course }) {
   const quiz = course.quiz
   const editLink = `/teach/courses/${course.id}/quiz/edit`
@@ -365,8 +359,6 @@ function QuizTab({ course }) {
     </Paper>
   )
 }
-
-/* ---------------- Learners ---------------- */
 
 const LEARNER_SORT = {
   name: (l) => l.full_name.toLowerCase(),

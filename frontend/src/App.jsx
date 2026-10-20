@@ -5,7 +5,10 @@ import { useAuth } from './auth/context.js'
 import { GuestOnly, HomeRedirect, RequireAuth, RequireRole } from './auth/guards.jsx'
 import { AppLayout, AuthLayout } from './components/Layout.jsx'
 import { Loading } from './components/States.jsx'
-import { AdminHomePage } from './pages/auth/AdminHomePage.jsx'
+import { AdminCoursesPage } from './pages/admin/AdminCoursesPage.jsx'
+import { AdminInstructorsPage } from './pages/admin/AdminInstructorsPage.jsx'
+import { AdminOverviewPage } from './pages/admin/AdminOverviewPage.jsx'
+import { AdminUsersPage } from './pages/admin/AdminUsersPage.jsx'
 import { LoginPage } from './pages/auth/LoginPage.jsx'
 import { PendingPage } from './pages/auth/PendingPage.jsx'
 import { SignupPage } from './pages/auth/SignupPage.jsx'
@@ -55,15 +58,22 @@ export default function App() {
         <Route element={<RequireAuth />}>
           <Route path="pending" element={<PendingPage />} />
 
+          <Route element={<RequireRole roles={['learner', 'instructor', 'admin']} />}>
+            <Route path="profile" element={<ProfilePage />} />
+          </Route>
+
           <Route element={<RequireRole roles={['learner', 'instructor']} />}>
             <Route path="dashboard" element={<DashboardPage />} />
-            <Route path="profile" element={<ProfilePage />} />
             {/* Instructors can preview their own lessons here too. */}
             <Route path="lessons/:lessonId" element={<LessonPage />} />
           </Route>
 
+          {/* /manage, not /admin: Vite proxies /admin to the Django admin. */}
           <Route element={<RequireRole roles={['admin']} />}>
-            <Route path="admin-home" element={<AdminHomePage />} />
+            <Route path="manage" element={<AdminOverviewPage />} />
+            <Route path="manage/instructors" element={<AdminInstructorsPage />} />
+            <Route path="manage/users" element={<AdminUsersPage />} />
+            <Route path="manage/courses" element={<AdminCoursesPage />} />
           </Route>
 
           <Route element={<RequireRole roles={['learner']} />}>

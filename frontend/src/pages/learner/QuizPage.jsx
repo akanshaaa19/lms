@@ -37,7 +37,6 @@ function Quiz({ quiz, attempts, onAttempt }) {
   async function handleSubmit(event) {
     event.preventDefault()
     setGeneral([])
-    // Every question must be answered before anything is sent.
     const unanswered = quiz.questions.filter((q) => !answers[q.id])
     setMissing(unanswered.map((q) => q.id))
     if (unanswered.length > 0) {

@@ -1,9 +1,7 @@
 import { Group, TextInput } from '@mantine/core'
 import { IconSearch } from '@tabler/icons-react'
 
-// Toolbar row: a borderless search box on the left, actions on the right.
-// The search box has a real (visually hidden) label; the placeholder is
-// only a hint.
+// The search box has a real (visually hidden) label; the placeholder is only a hint.
 export function SearchToolbar({ id, label, placeholder, value, onChange, onSubmit, children }) {
   return (
     <Group justify="space-between" wrap="wrap" gap="sm" className="surface-card search-bar" p={6} pl="md">

@@ -1,8 +1,7 @@
 import { Table } from '@mantine/core'
 import { IconArrowDown, IconArrowUp, IconSelector } from '@tabler/icons-react'
 
-// A column header that sorts the table. aria-sort tells screen readers
-// which column is sorted and in which direction.
+// aria-sort tells screen readers which column is sorted, and which way.
 export function SortableTh({ column, sort, onSort, children }) {
   const active = sort.column === column
   const ariaSort = active ? (sort.direction === 'asc' ? 'ascending' : 'descending') : 'none'

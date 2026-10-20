@@ -1,5 +1,3 @@
-// A small wrapper around fetch for talking to the Django API.
-//
 // Auth is Django's session cookie (HttpOnly, so JavaScript never sees it).
 // For any request that changes data, Django also needs the CSRF token: we
 // read it from the `csrftoken` cookie and send it back in a header.

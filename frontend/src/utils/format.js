@@ -12,7 +12,6 @@ export function progressText(completed, total, percent) {
   return `${completed} of ${total} ${noun} done (${percent}%)`
 }
 
-// Where a learner is in a course, for status labels.
 export function learnerStatus(completed, total) {
   if (completed === 0) return 'not_started'
   if (total > 0 && completed >= total) return 'completed'

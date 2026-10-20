@@ -95,8 +95,7 @@ export function ErrorState({ error, onRetry, backTo = '/', backLabel = 'Go to yo
   )
 }
 
-// Shows loading or error states for a useApiData() result, otherwise
-// renders children with the loaded data.
+// Loading or error state for a useApiData() result, otherwise children(data).
 export function Async({ query, children, skeleton = 'page', ...errorProps }) {
   if (query.loading && !query.data) return <Loading variant={skeleton} />
   if (query.error) return <ErrorState error={query.error} onRetry={query.reload} {...errorProps} />

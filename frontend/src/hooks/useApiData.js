@@ -2,8 +2,7 @@ import { useCallback, useEffect, useState } from 'react'
 
 import { api } from '../api.js'
 
-// Loads data from a GET endpoint and tracks loading and error states,
-// so pages never show a blank screen. Pass null to skip loading.
+// Pass null to skip loading.
 export function useApiData(path) {
   const [version, setVersion] = useState(0)
   const requestKey = `${path}#${version}`

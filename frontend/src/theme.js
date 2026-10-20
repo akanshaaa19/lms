@@ -14,7 +14,7 @@
  *   sage[0-9]  the accent. It's decorative only: never text on white,
  *              never a background behind white text.
  *       0, 1  soft fills (active nav pill, tags, icon tiles, selected answer)
- *       4     illustration shapes, focus halo
+ *       4     illustration shapes on the login panel
  *       5     progress rings, dots, active indicators (graphics only)
  *       7     links, tile icons, "Completed"/"Passed" text (6.0:1)
  *   success / warning / danger   status colours (text, dot, tint)
@@ -39,14 +39,14 @@ export const tokens = {
   sage: [
     '#f1f5ee', // 0  sage-50
     '#e6ede1', // 1  sage-100
-    '#cfdcc6', // 2
-    '#b6c8a8', // 3
+    '#cfdcc6',
+    '#b6c8a8',
     '#9caf88', // 4  sage-400
     '#7d9471', // 5  sage-500
-    '#66805c', // 6
+    '#66805c',
     '#4f6b47', // 7  sage-700
-    '#3e5638', // 8
-    '#2e412a', // 9
+    '#3e5638',
+    '#2e412a',
   ],
   success: { text: '#4f6b47', dot: '#7d9471', tint: '#f1f5ee' },
   warning: { text: '#8a5a00', dot: '#c98a04', tint: '#fff6e5' },
@@ -94,7 +94,6 @@ export const theme = createTheme({
       defaultProps: { size: 'md', radius: 'md', color: 'ink' },
       vars: (_theme, props) => {
         if (props.variant === 'default') {
-          // Secondary: white with an ink border.
           return { root: { '--button-bd': `1px solid ${ink}`, '--button-color': ink } }
         }
         if (props.variant === 'subtle' && (!props.color || props.color === 'ink')) {

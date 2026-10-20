@@ -90,8 +90,7 @@ export function CatalogPage() {
 
 function CourseCard({ course }) {
   return (
-    // The title link stretches over the whole card (see .card-link in
-    // styles.css): one tab stop, but the entire card is clickable.
+    // The title link stretches over the card: one tab stop, big target.
     <article className="surface-card card-link-wrap" style={{ padding: 20 }}>
       <Stack gap="md" h="100%">
         <Group justify="space-between" align="flex-start" wrap="nowrap">
