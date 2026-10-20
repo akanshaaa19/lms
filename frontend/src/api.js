@@ -65,6 +65,13 @@ async function request(method, path, body) {
   }
 
   if (response.status === 204) return null
+  // A web page instead of JSON means the request never reached Django,
+  // usually because VITE_API_URL is missing from the build.
+  if (response.ok && !(response.headers.get('content-type') ?? '').includes('application/json')) {
+    throw new ApiError(response.status, {
+      detail: `The app couldn't reach its server: ${API_URL || 'this site'}/api returned a web page instead of data. Check VITE_API_URL.`,
+    })
+  }
   const text = await response.text()
   let data = null
   if (text) {

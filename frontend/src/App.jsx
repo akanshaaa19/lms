@@ -36,7 +36,7 @@ export default function App() {
         <Alert color="danger" title="The app could not start">
           <Text>{startupError.message}</Text>
           <Text size="sm" mt="xs">
-            Make sure the Django server is running on port 8000, then reload this page.
+            Make sure the Django server is running and reachable, then reload this page.
           </Text>
         </Alert>
       </Container>
