@@ -1,0 +1,89 @@
+import { Alert, Container, Text } from '@mantine/core'
+import { Route, Routes } from 'react-router-dom'
+
+import { useAuth } from './auth/context.js'
+import { GuestOnly, HomeRedirect, RequireAuth, RequireRole } from './auth/guards.jsx'
+import { Layout } from './components/Layout.jsx'
+import { Loading } from './components/States.jsx'
+import { AdminHomePage } from './pages/auth/AdminHomePage.jsx'
+import { LoginPage } from './pages/auth/LoginPage.jsx'
+import { PendingPage } from './pages/auth/PendingPage.jsx'
+import { SignupPage } from './pages/auth/SignupPage.jsx'
+import { CourseFormPage } from './pages/instructor/CourseFormPage.jsx'
+import { LearnersPage } from './pages/instructor/LearnersPage.jsx'
+import { LessonFormPage } from './pages/instructor/LessonFormPage.jsx'
+import { ManageCoursePage } from './pages/instructor/ManageCoursePage.jsx'
+import { QuizBuilderPage } from './pages/instructor/QuizBuilderPage.jsx'
+import { TeachCoursesPage } from './pages/instructor/TeachCoursesPage.jsx'
+import { CatalogPage } from './pages/learner/CatalogPage.jsx'
+import { CourseDetailPage } from './pages/learner/CourseDetailPage.jsx'
+import { LessonPage } from './pages/learner/LessonPage.jsx'
+import { MyCoursesPage } from './pages/learner/MyCoursesPage.jsx'
+import { QuizPage } from './pages/learner/QuizPage.jsx'
+import { NotFoundPage } from './pages/NotFoundPage.jsx'
+import { ProfilePage } from './pages/ProfilePage.jsx'
+
+export default function App() {
+  const { ready, startupError } = useAuth()
+
+  if (!ready) return <Loading label="Starting…" />
+  if (startupError) {
+    return (
+      <Container size="sm" py="xl">
+        <Alert color="red" title="The app could not start">
+          <Text>{startupError.message}</Text>
+          <Text size="sm" mt="xs">
+            Make sure the Django server is running on port 8000, then reload this page.
+          </Text>
+        </Alert>
+      </Container>
+    )
+  }
+
+  return (
+    <Routes>
+      <Route element={<Layout />}>
+        <Route index element={<HomeRedirect />} />
+
+        <Route element={<GuestOnly />}>
+          <Route path="login" element={<LoginPage />} />
+          <Route path="signup" element={<SignupPage />} />
+        </Route>
+
+        <Route element={<RequireAuth />}>
+          <Route path="pending" element={<PendingPage />} />
+
+          <Route element={<RequireRole roles={['learner', 'instructor']} />}>
+            <Route path="profile" element={<ProfilePage />} />
+            {/* Instructors can preview their own lessons here too. */}
+            <Route path="lessons/:lessonId" element={<LessonPage />} />
+          </Route>
+
+          <Route element={<RequireRole roles={['admin']} />}>
+            <Route path="admin-home" element={<AdminHomePage />} />
+          </Route>
+
+          <Route element={<RequireRole roles={['learner']} />}>
+            <Route path="courses" element={<CatalogPage />} />
+            <Route path="courses/:courseId" element={<CourseDetailPage />} />
+            <Route path="my-courses" element={<MyCoursesPage />} />
+            <Route path="quizzes/:quizId" element={<QuizPage />} />
+          </Route>
+
+          <Route element={<RequireRole roles={['instructor']} />}>
+            <Route path="teach" element={<TeachCoursesPage />} />
+            <Route path="teach/courses/new" element={<CourseFormPage />} />
+            <Route path="teach/courses/:courseId" element={<ManageCoursePage />} />
+            <Route path="teach/courses/:courseId/edit" element={<CourseFormPage />} />
+            <Route path="teach/courses/:courseId/quiz" element={<QuizBuilderPage />} />
+            <Route path="teach/courses/:courseId/learners" element={<LearnersPage />} />
+            <Route path="teach/courses/:courseId/lessons/new" element={<LessonFormPage />} />
+            <Route path="teach/lessons/:lessonId/edit" element={<LessonFormPage />} />
+          </Route>
+        </Route>
+
+        <Route path="*" element={<NotFoundPage />} />
+      </Route>
+    </Routes>
+  )
+}
