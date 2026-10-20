@@ -84,6 +84,7 @@ Every design decision we make, why we made it, and what we gave up. This feeds i
 | F8 | Login failure gives one message for a wrong email or a wrong password. | Doesn't reveal which emails have accounts. |
 | F9 | The quiz-taking API never sends `is_correct`. Correct answers are shown only in the result, after submitting. | Can't cheat by reading the API response. Seeing corrections after an attempt is how people learn. |
 | F10 | Progress and best scores come from one annotated query, `Enrollment.objects.with_progress()`. | The dashboard is one query, not one per learner. Still calculated, never stored (E3). |
+| F12 | Sign-up catches the database's `IntegrityError` on a duplicate email (two sign-ups at the same moment can both pass `validate_email`) and returns the same 400 "already exists" error. Tested by simulating the race. | The unique constraint is the real guarantee and the Python check is for friendly messages. Without this, the second request got a 500. |
 | F11 | The quiz builder saves the whole quiz in one `PUT` and replaces the questions inside a transaction. | Simpler for the instructor UI and the code. Past attempts keep their stored scores (Q7). |
 
 ## Delivery

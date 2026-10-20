@@ -1,6 +1,6 @@
 from django.contrib.auth.password_validation import validate_password
 from django.core.exceptions import ValidationError as DjangoValidationError
-from django.db import transaction
+from django.db import IntegrityError, transaction
 from rest_framework import serializers
 
 from .models import InstructorProfile, LearnerProfile, User
@@ -15,6 +15,9 @@ class UserSerializer(serializers.ModelSerializer):
         fields = ["id", "email", "first_name", "last_name", "full_name", "role"]
 
 
+DUPLICATE_EMAIL = "An account with this email already exists. Try logging in instead."
+
+
 class SignUpSerializer(serializers.Serializer):
     """Creates a user and exactly one profile (decision A5)."""
 
@@ -27,7 +30,7 @@ class SignUpSerializer(serializers.Serializer):
     def validate_email(self, value):
         value = value.lower()
         if User.objects.filter(email__iexact=value).exists():
-            raise serializers.ValidationError("An account with this email already exists. Try logging in instead.")
+            raise serializers.ValidationError(DUPLICATE_EMAIL)
         return value
 
     def validate(self, data):
@@ -44,7 +47,15 @@ class SignUpSerializer(serializers.Serializer):
     def create(self, validated_data):
         # atomic: if creating the profile fails, the user isn't saved either.
         role = validated_data.pop("role")
-        user = User.objects.create_user(**validated_data)
+        try:
+            # Inner savepoint, so the outer transaction is still usable if this fails.
+            with transaction.atomic():
+                user = User.objects.create_user(**validated_data)
+        except IntegrityError:
+            # Two sign-ups with the same email at the same moment can both pass
+            # validate_email; the database's unique constraint stops the second.
+            # Report it as the same friendly error instead of a server error.
+            raise serializers.ValidationError({"email": [DUPLICATE_EMAIL]})
         if role == "instructor":
             InstructorProfile.objects.create(user=user)  # waits for admin approval
         else:

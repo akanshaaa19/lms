@@ -1,7 +1,10 @@
+from unittest import mock
+
 from django.test import TestCase
 from rest_framework.test import APIClient
 
 from accounts.models import User
+from accounts.serializers import SignUpSerializer
 from courses.testing import PASSWORD, make_learner
 
 
@@ -31,6 +34,15 @@ class SignUpAndLoginTests(TestCase):
         response = self.signup(APIClient(), email="ASHA@example.com")
         self.assertEqual(response.status_code, 400)
         self.assertIn("email", response.json())
+
+    def test_simultaneous_duplicate_signup_gets_a_friendly_error(self):
+        """Simulates the race: the email check passes, but the user already exists."""
+        self.signup(APIClient())
+        with mock.patch.object(SignUpSerializer, "validate_email", lambda self, value: value.lower()):
+            response = self.signup(APIClient())
+        self.assertEqual(response.status_code, 400)
+        self.assertIn("email", response.json())
+        self.assertEqual(User.objects.filter(email="asha@example.com").count(), 1)
 
     def test_weak_password_is_rejected(self):
         response = self.signup(APIClient(), password="12345678")
