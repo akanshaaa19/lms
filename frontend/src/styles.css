@@ -678,7 +678,12 @@ main:focus-visible {
 }
 @media (min-width: 62em) {
   .dashboard-grid {
-    grid-template-columns: minmax(0, 1.7fr) minmax(280px, 1fr);
+    grid-template-columns: minmax(0, 2fr) minmax(280px, 1fr);
+  }
+  /* Dashboards use more of a wide screen, with less space on the right. */
+  .main-content:has(.dashboard-grid) {
+    max-width: 1400px;
+    padding-right: 24px;
   }
 }
 .dashboard-column {
@@ -731,4 +736,45 @@ main:focus-visible {
   color: var(--lms-muted);
   font-size: 14px;
   background: var(--lms-surface-muted);
+}
+
+/* Instructor dashboard "Your courses": a table when the card is wide
+   enough, otherwise a compact list. Never a sideways scroll. */
+.courses-card-body {
+  container-type: inline-size;
+}
+.courses-table-view {
+  display: none;
+}
+.courses-table {
+  width: 100%;
+}
+.courses-table th[scope='row'] {
+  min-width: 0;
+  width: 34%;
+}
+.courses-table thead th:first-child,
+.courses-table tbody th:first-child {
+  padding-left: 20px;
+}
+.courses-table thead th:last-child,
+.courses-table tbody td:last-child {
+  padding-right: 20px;
+}
+.courses-list-view {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+.courses-list-view > li {
+  padding: 14px 20px;
+  border-top: 1px solid var(--lms-border);
+}
+@container (min-width: 580px) {
+  .courses-table-view {
+    display: block;
+  }
+  .courses-list-view {
+    display: none;
+  }
 }

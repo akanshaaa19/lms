@@ -58,6 +58,33 @@ export function InstructorDashboard({ data }) {
   )
 }
 
+function CourseLink({ course }) {
+  return (
+    <Anchor
+      component={Link}
+      to={`/teach/courses/${course.id}`}
+      fw={600}
+      c="var(--lms-ink)"
+      underline="hover"
+      lineClamp={2}
+      className="safe-text"
+    >
+      {course.title}
+    </Anchor>
+  )
+}
+
+function AverageProgress({ value }) {
+  if (value === null) {
+    return (
+      <Text size="sm" c="dimmed">
+        —<VisuallyHidden> no learners yet</VisuallyHidden>
+      </Text>
+    )
+  }
+  return <RingWithPercent value={value} size={28} />
+}
+
 function CoursesCard({ courses }) {
   if (courses.length === 0) {
     return (
@@ -68,54 +95,69 @@ function CoursesCard({ courses }) {
   }
   return (
     <SectionCard id="courses-heading" title="Your courses" actions={newCourseButton} padded={false}>
-      <Table.ScrollContainer minWidth={620}>
-        <Table verticalSpacing="sm" horizontalSpacing="md" highlightOnHover className="compact-table">
-          <Table.Thead>
-            <Table.Tr>
-              <Table.Th scope="col">Course</Table.Th>
-              <Table.Th scope="col">Status</Table.Th>
-              <Table.Th scope="col">Lessons</Table.Th>
-              <Table.Th scope="col">Enrolled</Table.Th>
-              <Table.Th scope="col">Avg. progress</Table.Th>
-              <Table.Th scope="col">Passed</Table.Th>
-            </Table.Tr>
-          </Table.Thead>
-          <Table.Tbody>
-            {courses.map((course) => (
-              <Table.Tr key={course.id}>
-                <Table.Th scope="row" fw={400} miw={180} maw={280}>
-                  <Anchor
-                    component={Link}
-                    to={`/teach/courses/${course.id}`}
-                    fw={600}
-                    c="var(--lms-ink)"
-                    underline="hover"
-                    lineClamp={2}
-                    className="safe-text"
-                  >
-                    {course.title}
-                  </Anchor>
-                </Table.Th>
-                <Table.Td>
-                  <StatusBadge status={course.status} />
-                </Table.Td>
-                <Table.Td>{course.lesson_count}</Table.Td>
-                <Table.Td>{course.enrolled}</Table.Td>
-                <Table.Td>
-                  {course.average_progress === null ? (
-                    <Text size="sm" c="dimmed">
-                      —<VisuallyHidden> no learners yet</VisuallyHidden>
-                    </Text>
-                  ) : (
-                    <RingWithPercent value={course.average_progress} size={28} />
-                  )}
-                </Table.Td>
-                <Table.Td>{course.has_quiz ? course.passed_count : <Text size="sm" c="dimmed" style={{ whiteSpace: 'nowrap' }}>No quiz</Text>}</Table.Td>
+      {/* Two layouts, chosen by the card's own width (a CSS container query),
+          so the table never needs a sideways scroll: a full table when it
+          fits, and a compact list when it doesn't. */}
+      <div className="courses-card-body">
+        <div className="courses-table-view">
+          <Table verticalSpacing="sm" horizontalSpacing="xs" highlightOnHover className="compact-table courses-table">
+            <Table.Thead>
+              <Table.Tr>
+                <Table.Th scope="col">Course</Table.Th>
+                <Table.Th scope="col">Status</Table.Th>
+                <Table.Th scope="col">Lessons</Table.Th>
+                <Table.Th scope="col">Enrolled</Table.Th>
+                <Table.Th scope="col">Progress</Table.Th>
+                <Table.Th scope="col">Passed</Table.Th>
               </Table.Tr>
-            ))}
-          </Table.Tbody>
-        </Table>
-      </Table.ScrollContainer>
+            </Table.Thead>
+            <Table.Tbody>
+              {courses.map((course) => (
+                <Table.Tr key={course.id}>
+                  <Table.Th scope="row" fw={400}>
+                    <CourseLink course={course} />
+                  </Table.Th>
+                  <Table.Td>
+                    <StatusBadge status={course.status} />
+                  </Table.Td>
+                  <Table.Td>{course.lesson_count}</Table.Td>
+                  <Table.Td>{course.enrolled}</Table.Td>
+                  <Table.Td>
+                    <AverageProgress value={course.average_progress} />
+                  </Table.Td>
+                  <Table.Td>
+                    {course.has_quiz ? (
+                      course.passed_count
+                    ) : (
+                      <Text size="sm" c="dimmed" style={{ whiteSpace: 'nowrap' }}>
+                        No quiz
+                      </Text>
+                    )}
+                  </Table.Td>
+                </Table.Tr>
+              ))}
+            </Table.Tbody>
+          </Table>
+        </div>
+
+        <ul className="courses-list-view">
+          {courses.map((course) => (
+            <li key={course.id}>
+              <Group justify="space-between" align="flex-start" wrap="nowrap" gap="sm">
+                <CourseLink course={course} />
+                <StatusBadge status={course.status} />
+              </Group>
+              <Text size="sm" c="dimmed" mt={4}>
+                {course.lesson_count} {course.lesson_count === 1 ? 'lesson' : 'lessons'} · {course.enrolled} enrolled
+                {' · '}
+                {course.average_progress === null ? 'no progress yet' : `${course.average_progress}% average progress`}
+                {' · '}
+                {course.has_quiz ? `${course.passed_count} passed` : 'no quiz'}
+              </Text>
+            </li>
+          ))}
+        </ul>
+      </div>
     </SectionCard>
   )
 }
