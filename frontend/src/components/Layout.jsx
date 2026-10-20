@@ -16,6 +16,7 @@ import {
 } from '@tabler/icons-react'
 import { NavLink, Outlet, useLocation, useNavigate } from 'react-router-dom'
 
+import { API_URL } from '../api.js'
 import { useAuth } from '../auth/context.js'
 import { Logo } from './Logo.jsx'
 import { UserAvatar } from './UserAvatar.jsx'
@@ -58,7 +59,7 @@ const NAV_SECTIONS = {
       items: [
         { to: '/profile', label: 'Profile', icon: IconUserCircle },
         // The Django admin is a separate server-rendered site, so it's a plain link.
-        { href: '/admin/', label: 'Open Django admin', icon: IconSettings, external: true },
+        { href: `${API_URL}/admin/`, label: 'Open Django admin', icon: IconSettings, external: true },
       ],
     },
   ],

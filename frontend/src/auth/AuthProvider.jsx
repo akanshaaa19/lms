@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useMemo, useState } from 'react'
 
-import { api } from '../api.js'
+import { api, loadCsrfToken } from '../api.js'
 import { AuthContext } from './context.js'
 
 // Holds the logged-in user for the whole app. The real check is always on
@@ -19,7 +19,7 @@ export function AuthProvider({ children }) {
   useEffect(() => {
     async function start() {
       try {
-        await api.get('/auth/csrf/') // sets the csrftoken cookie
+        await loadCsrfToken()
         await refresh()
       } catch (error) {
         setStartupError(error)

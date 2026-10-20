@@ -5,7 +5,7 @@ The Django REST API that the React app uses. All paths start with `/api/`. Reque
 ## Conventions
 
 - **Auth:** Django session cookie. Call `GET /api/auth/csrf/` once on app load. It sets the `csrftoken` cookie. Every `POST`, `PUT`, `PATCH` and `DELETE` must send the header `X-CSRFToken: <csrftoken cookie value>`. Read the cookie fresh on each request, because Django rotates it on login.
-- **Development:** Vite proxies `/api` and `/admin` to `http://127.0.0.1:8000`, so the browser sees one origin and no CORS setup is needed.
+- **Where the API is:** the frontend uses `VITE_API_URL` (`frontend/.env.development` sets `http://localhost:8000`). If it's empty, requests go to the same site, and a proxy (Vite's, or a hosting rewrite) forwards `/api` and `/admin` to Django. Django allows the frontend's origin through CORS with credentials (`DJANGO_FRONTEND_ORIGINS`).
 - **Errors:**
   - `400` validation: `{"field_name": ["message", ...], "non_field_errors": ["..."]}` or `{"detail": "message"}`
   - `401` or `403`: `{"detail": "..."}`. Not logged in, or not allowed.
@@ -16,7 +16,7 @@ The Django REST API that the React app uses. All paths start with `/api/`. Reque
 
 | Method & path | Body | Response |
 |---|---|---|
-| `GET csrf/` | none | `204`, sets the cookie |
+| `GET csrf/` | none | `200 {"csrfToken": "…"}`, and sets the `csrftoken` cookie. Use the body when the frontend is on another domain and can't read the cookie. |
 | `GET me/` | none | `200 {"user": User or null}` |
 | `POST signup/` | `{first_name, last_name, email, password, role: "learner" or "instructor"}` | `201 {"user": User}`, now logged in. `400` field errors. |
 | `POST login/` | `{email, password}` | `200 {"user": User}`. `400 {"detail": "Email or password is incorrect."}` |

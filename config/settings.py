@@ -1,14 +1,21 @@
+import os
 from pathlib import Path
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 
-# SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'django-insecure-jyhhr_&0*(3#9i^7!6#2)=o57x9!c0hcqz0f4aat4)=5rv*b#e'
 
-# SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+def env_list(name, default):
+    """A comma-separated environment variable as a list."""
+    return [item.strip() for item in os.environ.get(name, default).split(",") if item.strip()]
 
-ALLOWED_HOSTS = []
+
+# Local development works with no environment variables set. In production,
+# set DJANGO_SECRET_KEY, DJANGO_DEBUG=false and the host/origin lists below.
+SECRET_KEY = os.environ.get(
+    "DJANGO_SECRET_KEY", "django-insecure-jyhhr_&0*(3#9i^7!6#2)=o57x9!c0hcqz0f4aat4)=5rv*b#e"
+)
+DEBUG = os.environ.get("DJANGO_DEBUG", "true").lower() == "true"
+ALLOWED_HOSTS = env_list("DJANGO_ALLOWED_HOSTS", "localhost,127.0.0.1")
 
 INSTALLED_APPS = [
     'django.contrib.admin',
@@ -18,6 +25,7 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'rest_framework',
+    'corsheaders',
     # Our apps
     'accounts',
     'courses',
@@ -31,6 +39,8 @@ AUTH_USER_MODEL = 'accounts.User'
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
+    'whitenoise.middleware.WhiteNoiseMiddleware',  # serves the admin's CSS/JS in production
+    'corsheaders.middleware.CorsMiddleware',  # before CommonMiddleware, as the package requires
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
@@ -90,6 +100,7 @@ USE_I18N = True
 USE_TZ = True
 
 STATIC_URL = 'static/'
+STATIC_ROOT = BASE_DIR / 'staticfiles'  # filled by `collectstatic` when deploying
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
@@ -106,5 +117,25 @@ REST_FRAMEWORK = {
     ],
 }
 
-# The Vite dev server (React) proxies /api to Django.
-CSRF_TRUSTED_ORIGINS = ['http://localhost:5173', 'http://127.0.0.1:5173']
+# Where the React app is served from. It may call Django directly
+# (VITE_API_URL) or through a proxy; both need the origin trusted for CSRF.
+FRONTEND_ORIGINS = env_list(
+    "DJANGO_FRONTEND_ORIGINS",
+    "http://localhost:5173,http://localhost:5174,http://localhost:5175,http://127.0.0.1:5173",
+)
+CSRF_TRUSTED_ORIGINS = FRONTEND_ORIGINS
+CORS_ALLOWED_ORIGINS = FRONTEND_ORIGINS
+CORS_ALLOW_CREDENTIALS = True  # let the browser send the session cookie cross-origin
+
+# Production over HTTPS, with the frontend on a different site (e.g. Vercel
+# calling Django elsewhere): cookies must be SameSite=None and Secure, or the
+# browser won't send them. Set DJANGO_CROSS_SITE_COOKIES=true for that case.
+if not DEBUG:
+    SESSION_COOKIE_SECURE = True
+    CSRF_COOKIE_SECURE = True
+    # Hosts like Render end HTTPS at their proxy and forward plain HTTP;
+    # this header tells Django the original request was HTTPS.
+    SECURE_PROXY_SSL_HEADER = ("HTTP_X_FORWARDED_PROTO", "https")
+if os.environ.get("DJANGO_CROSS_SITE_COOKIES", "false").lower() == "true":
+    SESSION_COOKIE_SAMESITE = "None"
+    CSRF_COOKIE_SAMESITE = "None"

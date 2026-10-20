@@ -1,5 +1,6 @@
 from django.contrib.auth import authenticate, login, logout
 from django.utils.decorators import method_decorator
+from django.middleware.csrf import get_token
 from django.views.decorators.csrf import csrf_protect, ensure_csrf_cookie
 from rest_framework import status
 from rest_framework.permissions import AllowAny
@@ -11,12 +12,16 @@ from .serializers import LoginSerializer, ProfileSerializer, SignUpSerializer, U
 
 @method_decorator(ensure_csrf_cookie, name="dispatch")
 class CsrfView(APIView):
-    """Sets the csrftoken cookie. React calls this once when it loads."""
+    """Sets the csrftoken cookie and also returns the token.
+
+    The body matters when the frontend is on another domain: it can't read
+    Django's cookie there, so it keeps this value and sends it back instead.
+    """
 
     permission_classes = [AllowAny]
 
     def get(self, request):
-        return Response(status=status.HTTP_204_NO_CONTENT)
+        return Response({"csrfToken": get_token(request)})
 
 
 class MeView(APIView):

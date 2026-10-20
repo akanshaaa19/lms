@@ -5,7 +5,7 @@ A small learning management system for a legal services organisation. Instructor
 - **Backend:** Django 5.2 + Django REST Framework, SQLite
 - **Frontend:** React + Vite + Mantine, in `frontend/`
 
-See [NOTES.md](NOTES.md) for the design and data model, [DECISIONS.md](DECISIONS.md) for every decision and the reason for it, and [API.md](API.md) for the API.
+See [NOTES.md](NOTES.md) for the design and data model, and [API.md](API.md) for the API.
 
 ## Requirements
 
@@ -47,7 +47,7 @@ cd frontend
 npm run dev
 ```
 
-Open **http://localhost:5173**. Vite forwards `/api` and `/admin` to Django, so everything runs from that one address, including the Django admin at http://localhost:5173/admin/.
+Open **http://localhost:5173**. The React app calls Django at the URL in `frontend/.env.development` (`VITE_API_URL=http://localhost:8000`). The Django admin is at http://localhost:8000/admin/.
 
 ## Demo accounts
 
@@ -63,6 +63,28 @@ Every account's password is **`Demo-pass-2026`**.
 Running `python manage.py seed_demo` again resets the demo data. Other data is left alone.
 
 **To see instructor approval:** sign up as a new user and choose "An instructor". You'll see the pending screen. Log in to the admin as `admin@example.com`, go to **Instructor profiles**, select the user and run **Approve selected instructors**, then log in again as the new instructor.
+
+## Deployment
+
+The frontend and backend deploy separately.
+
+**Django (e.g. Render, as a Python web service, with the repository root as its root):**
+
+- Build command: `pip install -r requirements.txt && python manage.py collectstatic --noinput`
+- Start command: `python manage.py migrate --noinput && python manage.py seed_demo && gunicorn config.wsgi:application --bind 0.0.0.0:$PORT`
+- Environment variables:
+
+| Variable | Value |
+|---|---|
+| `DJANGO_SECRET_KEY` | A long random string |
+| `DJANGO_DEBUG` | `false` |
+| `DJANGO_ALLOWED_HOSTS` | The backend's host, e.g. `lms-api.onrender.com` |
+| `DJANGO_FRONTEND_ORIGINS` | The frontend's URL, e.g. `https://lms.vercel.app` |
+| `DJANGO_CROSS_SITE_COOKIES` | `true` when the frontend is on a different site from the backend |
+
+SQLite lives on the server's disk. On hosts whose disk resets on restart, the start command re-creates the demo accounts each time.
+
+**React (e.g. Vercel, with `frontend` as the root directory):** framework Vite, build `npm run build`, output `dist`. Set `VITE_API_URL` to the backend's URL. `frontend/vercel.json` sends every path to `index.html`, so pages like `/dashboard` load on refresh.
 
 ## Tests
 

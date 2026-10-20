@@ -1,6 +1,6 @@
 # Notes
 
-The reasoning behind the build. The full decision log, with a reason for each decision, is in [DECISIONS.md](DECISIONS.md), and the API contract is in [API.md](API.md).
+The reasoning behind the build. The API contract is in [API.md](API.md).
 
 ## Tools and AI assistants
 
@@ -8,7 +8,7 @@ The reasoning behind the build. The full decision log, with a reason for each de
   - question my first rough plan and data model before writing any code, e.g. replacing a `user_type` + `entity_id` design with real foreign keys, and storing progress events instead of a progress percentage
   - write the Django models, API, admin, tests and demo data step by step, with explanations of each Django concept, because I was new to Django
   - write the React frontend through a sub-agent working in parallel against a written API contract (`API.md`), which I then checked end to end through the dev proxy
-  - keep `DECISIONS.md` up to date as we went
+  - keep a running log of design decisions and the reason for each
 - **Django REST Framework** for the API. **React + Vite + Mantine** for the UI. **Inter** font via Fontsource.
 - TODO (Akansha): confirm in your own words how you reviewed and tested the code, once you have.
 

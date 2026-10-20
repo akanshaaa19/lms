@@ -1,6 +1,21 @@
 // Auth is Django's session cookie (HttpOnly, so JavaScript never sees it).
-// For any request that changes data, Django also needs the CSRF token: we
-// read it from the `csrftoken` cookie and send it back in a header.
+// For any request that changes data, Django also needs the CSRF token,
+// sent back in a header.
+
+// Where Django lives, from VITE_API_URL (see .env.development / .env.production).
+// Empty means "this same site": a proxy (Vite in dev, or a hosting rewrite)
+// forwards /api to Django.
+export const API_URL = (import.meta.env.VITE_API_URL ?? '').replace(/\/$/, '')
+const crossSite = API_URL !== ''
+
+// When Django is on another domain, its csrftoken cookie can't be read from
+// here, so we keep the token Django returns from /auth/csrf/ instead.
+let csrfToken = null
+
+export async function loadCsrfToken() {
+  const data = await request('GET', '/auth/csrf/')
+  csrfToken = data?.csrfToken ?? null
+}
 
 export class ApiError extends Error {
   constructor(status, body) {
@@ -31,17 +46,18 @@ async function request(method, path, body) {
   const headers = { Accept: 'application/json' }
   if (body !== undefined) headers['Content-Type'] = 'application/json'
   if (method !== 'GET') {
-    // Read the cookie fresh every time: Django rotates the token on login.
-    const token = getCookie('csrftoken')
+    // Prefer the cookie when we can read it: it's always current.
+    const token = getCookie('csrftoken') ?? csrfToken
     if (token) headers['X-CSRFToken'] = token
   }
 
   let response
   try {
-    response = await fetch(`/api${path}`, {
+    response = await fetch(`${API_URL}/api${path}`, {
       method,
       headers,
-      credentials: 'same-origin',
+      // Send the session cookie to Django, even when it's on another domain.
+      credentials: crossSite ? 'include' : 'same-origin',
       body: body === undefined ? undefined : JSON.stringify(body),
     })
   } catch {
@@ -59,6 +75,8 @@ async function request(method, path, body) {
     }
   }
   if (!response.ok) throw new ApiError(response.status, data)
+  // Django issues a new CSRF token on login, sign-up and logout.
+  if (method !== 'GET' && path.startsWith('/auth/') && path !== '/auth/profile/') await loadCsrfToken()
   return data
 }
 
