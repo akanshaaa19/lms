@@ -71,7 +71,9 @@ main:focus-visible {
     border-radius: 16px;
     border: 1px solid var(--lms-border);
     box-shadow: var(--mantine-shadow-sm);
-    overflow: hidden;
+    /* clip, not hidden: hidden makes this a scroll container, which stops
+       the sticky sidebar from sticking to the window. */
+    overflow: clip;
   }
 }
 .shell-canvas {
@@ -91,10 +93,11 @@ main:focus-visible {
   display: flex;
   flex-direction: column;
   padding: 20px 14px 16px;
+  /* Sticks exactly where it starts (12px shell padding + 1px canvas border),
+     so it stays still while the page scrolls instead of sliding up first.
+     Height: the window minus that space at the top and bottom. */
   position: sticky;
-  top: 0;
-  /* Window height minus the shell's 12px padding top and bottom and the
-     canvas's 1px border top and bottom. */
+  top: 13px;
   height: calc(100vh - 26px);
 }
 .main-area {
